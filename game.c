@@ -242,7 +242,19 @@ uint8_t fix_block_to_board_and_add_new_block(void) {
  * to a column on the LED matrix.)
  */
 static void check_for_completed_rows(void) {
-	/* YOUR CODE HERE */
+	rowCheck: for (int i = 0; i < BOARD_ROWS; i++) {
+		if (board[i] == ((1 << BOARD_WIDTH) - 1)) {
+			//completed row, shuffle rows down
+			for (int j = i; j > 0; j--) {
+				board[j] = board[j-1];
+				copy_matrix_column(board_display[j-1], board_display[j]);
+			}
+			board[0] = 0;
+			set_matrix_column_to_colour(0,0x00);
+			update_rows_on_display(0, BOARD_ROWS);
+			goto rowCheck;
+		}
+	}
 	
 	/* Suggested approach is to iterate over all the rows (0 to
 	 * BOARD_ROWS -1) in the board and check if the row is all ones
