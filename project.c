@@ -119,6 +119,8 @@ void new_game(void) {
 	
 	// Initialise the score
 	init_score();
+	//display score
+	display_score(get_score());
 	
 	// Delete any pending button pushes or serial input
 	empty_button_queue();
@@ -199,6 +201,10 @@ void play_game(void) {
 				// Drop failed - fix block to board and add new block
 				if(!fix_block_to_board_and_add_new_block()) {
 					break;	// GAME OVER
+				} else {
+					add_to_score(1); //block dropped
+					//display score
+					display_score(get_score());
 				}
 			} else {
 				//ADDED FUNCTIONALITY - repeat until can no longer be dropped
@@ -239,3 +245,4 @@ void handle_game_over() {
 	}
 	
 }
+
