@@ -46,6 +46,9 @@ int main(void) {
 	// is complete
 	splash_screen();
 	
+	//initialise high score at 0
+	set_high_score(0);
+	
 	while(1) {
 		new_game();
 		play_game();
@@ -238,7 +241,13 @@ void handle_game_over() {
 	move_cursor(10,14);
 	// Print a message to the terminal. 
 	printf_P(PSTR("GAME OVER"));
+	//output current high score
+	if (get_score() > get_high_score()) {
+		set_high_score(get_score());
+	}
 	move_cursor(10,15);
+	printf_P(PSTR("HIGH SCORE: %d"), get_high_score());
+	move_cursor(10,16);
 	printf_P(PSTR("Press a button to start again"));
 	while(button_pushed() == -1) {
 		; // wait until a button has been pushed
