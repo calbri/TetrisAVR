@@ -94,7 +94,7 @@ void display_score(uint32_t score){
 }
 
 void terminal_update_square(PixelColour value, int y_coord, int x_coord) {
-	DisplayParameter color_code;
+	/*DisplayParameter color_code;
 	//convert colours
 	switch (value) {
 		case COLOUR_BLACK :
@@ -128,11 +128,11 @@ void terminal_update_square(PixelColour value, int y_coord, int x_coord) {
 	move_cursor(4 + x_coord, 6 + y_coord);
 	set_display_attribute(color_code);
 	printf("#");
-	set_display_attribute(FG_WHITE);
+	set_display_attribute(FG_WHITE);*/
 }
 
 void draw_game_area(void) {
-	set_display_attribute(FG_WHITE);
+	/*set_display_attribute(FG_WHITE);
 	move_cursor(3, 5);
 	printf_P(PSTR("##########"));
 	for (int i = 0; i< 16; i++) {
@@ -140,7 +140,7 @@ void draw_game_area(void) {
 		printf_P(PSTR("#        #"));
 	}
 	move_cursor(3, 22);
-	printf_P(PSTR("##########"));
+	printf_P(PSTR("##########"));*/
 	
 }
 		
