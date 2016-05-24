@@ -242,19 +242,29 @@ uint8_t fix_block_to_board_and_add_new_block(void) {
  * to a column on the LED matrix.)
  */
 static void check_for_completed_rows(void) {
-	rowCheck: for (int i = 0; i < BOARD_ROWS; i++) {
+	int row_complete = 0;
+	for(int i = 0; i < BOARD_ROWS; i++) {
 		if (board[i] == ((1 << BOARD_WIDTH) - 1)) {
-			//completed row, shuffle rows down
-			for (int j = i; j > 0; j--) {
+			//completed row, add 100 to score
+			(void)add_to_score(100);
+			//shuffle rows down
+			for(int j = i; j > 0; j--) {
 				board[j] = board[j-1];
-				copy_matrix_column(board_display[j-1], board_display[j]);
+				for(uint8_t row = 0; row <MATRIX_NUM_ROWS; row++) {
+					board_display[j][row] = board_display[j-1][row];
+				}
 			}
 			board[0] = 0;
 			set_matrix_column_to_colour(0,0x00);
-			update_rows_on_display(0, BOARD_ROWS);
-			goto rowCheck;
+			ledmatrix_update_all(board_display);
+			row_complete = 1;
+			break;
 		}
 	}
+	if (row_complete == 1) {
+		check_for_completed_rows();
+	}
+}
 	
 	/* Suggested approach is to iterate over all the rows (0 to
 	 * BOARD_ROWS -1) in the board and check if the row is all ones
@@ -284,8 +294,6 @@ static void check_for_completed_rows(void) {
 	 * row 1 (second top row) is set to 0 (black)
 	 * row 0 (top row) is set to 0 (black)
 	 */
-	
-}
 
 /*
  * Add random block, return false (0) if we can't add the block - this
