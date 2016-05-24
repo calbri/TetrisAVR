@@ -79,7 +79,7 @@ void splash_screen(void) {
 	
 	move_cursor(3,5);
 	set_display_attribute(FG_GREEN);	// Make the text green
-	printf_P(PSTR("CSSE2010/7201 Tetris Project by <your name(s) here>"));	
+	printf_P(PSTR("CSSE2010/7201 Tetris Project by Ben Gattas and Callum Bryson"));	
 	set_display_attribute(FG_WHITE);	// Return to default colour (White)
 	
 	// Output the scrolling message to the LED matrix
@@ -89,7 +89,7 @@ void splash_screen(void) {
 	// Red message the first time through
 	PixelColour colour = COLOUR_RED;
 	while(1) {
-		set_scrolling_display_text("TETRIS", colour);
+		set_scrolling_display_text("TETRIS 43922604 43915398", colour);
 		// Scroll the message until it has scrolled off the 
 		// display or a button is pushed. We pause for 130ms between each scroll.
 		while(scroll_display()) {
@@ -119,6 +119,8 @@ void new_game(void) {
 	
 	// Initialise the score
 	init_score();
+	//display score
+	display_score(get_score());
 	
 	// Delete any pending button pushes or serial input
 	empty_button_queue();
@@ -199,6 +201,10 @@ void play_game(void) {
 				// Drop failed - fix block to board and add new block
 				if(!fix_block_to_board_and_add_new_block()) {
 					break;	// GAME OVER
+				} else {
+					add_to_score(1); //block dropped
+					//display score
+					display_score(get_score());
 				}
 			} else {
 				//ADDED FUNCTIONALITY - repeat until can no longer be dropped
@@ -239,3 +245,4 @@ void handle_game_over() {
 	}
 	
 }
+
