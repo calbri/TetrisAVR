@@ -79,7 +79,7 @@ void splash_screen(void) {
 	
 	move_cursor(3,5);
 	set_display_attribute(FG_GREEN);	// Make the text green
-	printf_P(PSTR("CSSE2010/7201 Tetris Project by <your name(s) here>"));	
+	printf_P(PSTR("CSSE2010/7201 Tetris Project by Ben Gattas and Callum Bryson"));	
 	set_display_attribute(FG_WHITE);	// Return to default colour (White)
 	
 	// Output the scrolling message to the LED matrix
@@ -89,7 +89,7 @@ void splash_screen(void) {
 	// Red message the first time through
 	PixelColour colour = COLOUR_RED;
 	while(1) {
-		set_scrolling_display_text("TETRIS", colour);
+		set_scrolling_display_text("TETRIS 43922604 43915398", colour);
 		// Scroll the message until it has scrolled off the 
 		// display or a button is pushed. We pause for 130ms between each scroll.
 		while(scroll_display()) {
