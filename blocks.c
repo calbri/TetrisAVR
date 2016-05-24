@@ -13,9 +13,10 @@
 /*
  * Define the block library. 
  * Five blocks are defined initially.
+ * TWO HAVE BEEN ADDED
  */
 
-#define NUM_BLOCKS_IN_LIBRARY 5
+#define NUM_BLOCKS_IN_LIBRARY 7
 
 // Block 0 (1 x 1) only has one pattern (rotation doesn't change this)
 // -------*
@@ -61,6 +62,27 @@ static rowtype block_4_rot_1[] = { 0b10, 0b10, 0b11 };
 static rowtype block_4_rot_2[] = { 0b111, 0b100 };
 static rowtype block_4_rot_3[] = { 0b11, 0b01, 0b01 };
 	
+// Block 5 (4 x 1) has two patterns
+// -------* ----****
+// -------*
+// -------*
+// -------*
+#define BLOCK_5_HEIGHT 4
+#define BLOCK_5_WIDTH 1
+static rowtype block_5_horiz[] = { 0b1111 };
+static rowtype block_5_vert[] = { 0b1, 0b1, 0b1, 0b1 };
+	
+// Block 6 (3 x 2) has four patterns
+// -----*** -------* -----*-- ------**
+// -------* -------* -----*** ------*-
+//          ------**          ------*-
+#define BLOCK_6_HEIGHT 2
+#define BLOCK_6_WIDTH 3
+static rowtype block_6_rot_0[] = { 0b111, 0b001 };
+static rowtype block_6_rot_1[] = { 0b01, 0b01, 0b11 };
+static rowtype block_6_rot_2[] = { 0b100, 0b111 };
+static rowtype block_6_rot_3[] = { 0b11, 0b10, 0b10 };	
+	
 static const BlockInfo block_library[NUM_BLOCKS_IN_LIBRARY] = {
 	{ // Block 0
 		COLOUR_RED, BLOCK_0_HEIGHT, BLOCK_0_WIDTH, 
@@ -81,6 +103,15 @@ static const BlockInfo block_library[NUM_BLOCKS_IN_LIBRARY] = {
 	{ // Block 4
 		COLOUR_LIGHT_ORANGE, BLOCK_4_HEIGHT, BLOCK_4_WIDTH,
 		{ block_4_rot_0, block_4_rot_1, block_4_rot_2, block_4_rot_3 }	
+	},
+	//EXTRA ONES ADDED
+	{ // Block 5
+		COLOUR_LIGHT_GREEN, BLOCK_5_HEIGHT, BLOCK_5_WIDTH,
+		{ block_5_vert, block_5_horiz, block_5_vert, block_5_horiz }
+	},
+	{ // Block 6
+		COLOUR_LIGHT_YELLOW, BLOCK_6_HEIGHT, BLOCK_6_WIDTH,
+		{ block_6_rot_0, block_6_rot_1, block_6_rot_2, block_6_rot_3 }
 	}
 };
 	
