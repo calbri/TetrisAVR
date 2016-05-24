@@ -11,6 +11,7 @@
 
 #include "terminalio.h"
 
+int prevDisplay[8][16];
 
 void move_cursor(int8_t x, int8_t y) {
     printf_P(PSTR("\x1b[%d;%dH"), y, x);
@@ -94,45 +95,48 @@ void display_score(uint32_t score){
 }
 
 void terminal_update_square(PixelColour value, int y_coord, int x_coord) {
-	/*DisplayParameter color_code;
-	//convert colours
-	switch (value) {
-		case COLOUR_BLACK :
-			color_code = FG_BLACK;
-			break;
-		case COLOUR_RED :
-			color_code = FG_RED;
-			break;
-		case COLOUR_GREEN :
-			color_code = FG_GREEN;
-			break;
-		case COLOUR_YELLOW :
-			color_code = FG_YELLOW;
-			break;
-		case COLOUR_ORANGE :
-			color_code = FG_WHITE;
-			break;
-		case COLOUR_LIGHT_ORANGE :
-			color_code = FG_CYAN;
-			break;
-		case COLOUR_LIGHT_YELLOW :
-			color_code = FG_MAGENTA;
-			break;
-		case COLOUR_LIGHT_GREEN :
-			color_code = FG_BLUE;
-			break;
-		default:
-			color_code = FG_BLACK;
+	if (value != prevDisplay[x_coord][y_coord]) {
+		prevDisplay[x_coord][y_coord] = value;
+		DisplayParameter color_code;
+		//convert colours
+		switch (value) {
+			case COLOUR_BLACK :
+				color_code = FG_BLACK;
+				break;
+			case COLOUR_RED :
+				color_code = FG_RED;
+				break;
+			case COLOUR_GREEN :
+				color_code = FG_GREEN;
+				break;
+			case COLOUR_YELLOW :
+				color_code = FG_YELLOW;
+				break;
+			case COLOUR_ORANGE :
+				color_code = FG_WHITE;
+				break;
+			case COLOUR_LIGHT_ORANGE :
+				color_code = FG_CYAN;
+				break;
+			case COLOUR_LIGHT_YELLOW :
+				color_code = FG_MAGENTA;
+				break;
+			case COLOUR_LIGHT_GREEN :
+				color_code = FG_BLUE;
+				break;
+			default:
+				color_code = FG_BLACK;
+		}
+		//output
+		move_cursor(4 + x_coord, 6 + y_coord);
+		set_display_attribute(color_code);
+		printf("#");
+		set_display_attribute(FG_WHITE);
 	}
-	//output
-	move_cursor(4 + x_coord, 6 + y_coord);
-	set_display_attribute(color_code);
-	printf("#");
-	set_display_attribute(FG_WHITE);*/
 }
 
 void draw_game_area(void) {
-	/*set_display_attribute(FG_WHITE);
+	set_display_attribute(FG_WHITE);
 	move_cursor(3, 5);
 	printf_P(PSTR("##########"));
 	for (int i = 0; i< 16; i++) {
@@ -140,7 +144,7 @@ void draw_game_area(void) {
 		printf_P(PSTR("#        #"));
 	}
 	move_cursor(3, 22);
-	printf_P(PSTR("##########"));*/
+	printf_P(PSTR("##########"));
 	
 }
 		
