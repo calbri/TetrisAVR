@@ -85,10 +85,3 @@ void draw_vertical_line(int8_t x, int8_t start_y, int8_t end_y) {
 	printf(" ");
 	normal_display_mode();
 }
-
-void display_score(uint16_t score){
-	move_cursor(3,3);
-	//print score
-	//max value of uint16_t is 5 chars
-	printf_P(PSTR("Score: %5d"), score);
-}

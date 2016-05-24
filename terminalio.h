@@ -86,7 +86,4 @@ void scroll_up(void);
 void draw_horizontal_line(int8_t y, int8_t startx, int8_t endx);
 void draw_vertical_line(int8_t x, int8_t starty, int8_t endy);
 
-//display the current score
-void display_score(uint16_t);
-
 #endif /* TERMINAL_IO_H */

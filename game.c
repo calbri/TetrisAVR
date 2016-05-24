@@ -14,7 +14,6 @@
 #include "blocks.h"
 #include "score.h"
 #include "ledmatrix.h"
-#include "terminalio.h"
 
 /*
  * Function prototypes.
@@ -33,7 +32,6 @@ static uint8_t add_random_block(void);
 static uint8_t block_collides(FallingBlock block);
 static void remove_current_block_from_board_display(void);
 static void add_current_block_to_board_display(void);
-
 
 /*
  * Global variables.
@@ -248,8 +246,7 @@ static void check_for_completed_rows(void) {
 	for(int i = 0; i < BOARD_ROWS; i++) {
 		if (board[i] == ((1 << BOARD_WIDTH) - 1)) {
 			//completed row, add 100 to score
-			add_to_score(100);
-			display_score(get_score());
+			(void)add_to_score(100);
 			//shuffle rows down
 			for(int j = i; j > 0; j--) {
 				board[j] = board[j-1];
