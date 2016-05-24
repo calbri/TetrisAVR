@@ -11,7 +11,6 @@
 #define TERMINAL_IO_H_
 
 #include <stdint.h>
-#include "pixel_colour.h"
 /*
  * x (column number) and y (row number) are measured relative to the top
  * left of the screen. First column is 1, first row is 1.
@@ -89,9 +88,5 @@ void draw_vertical_line(int8_t x, int8_t starty, int8_t endy);
 
 //display the current score
 void display_score(uint32_t);
-
-void terminal_update_square(PixelColour value, int x_coord, int y_coord); 
-
-void draw_game_area(void);
 
 #endif /* TERMINAL_IO_H */

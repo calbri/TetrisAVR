@@ -125,9 +125,6 @@ void new_game(void) {
 	//display score
 	display_score(get_score());
 	
-	//display game area
-	draw_game_area();
-	
 	// Delete any pending button pushes or serial input
 	empty_button_queue();
 	clear_serial_input_buffer();

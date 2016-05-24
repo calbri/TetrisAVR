@@ -67,8 +67,6 @@ void init_game(void) {
 			board_display[row][col] = 0;
 		}
 	}
-	ledmatrix_update_all(board_display);
-	
 	// Adding a random block will update the "current_block" and 
 	// add it to the board.	With an empty board this will always
 	// succeed so we ignore the return value - this is indicated 
