@@ -209,6 +209,7 @@ void play_game(void) {
 					break;	// GAME OVER
 				} else {
 					add_to_score(1); //block dropped
+					speedy_terminal_drop();
 					//display score
 					display_score(get_score());
 				}
@@ -233,6 +234,8 @@ void play_game(void) {
 				if(!fix_block_to_board_and_add_new_block()) {
 					break;	// GAME OVER
 				}
+			} else {
+				speedy_terminal_drop();
 			}
 			last_drop_time = get_clock_ticks();
 		}

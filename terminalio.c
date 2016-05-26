@@ -6,12 +6,13 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include <avr/pgmspace.h>
 
 #include "terminalio.h"
 
-int prevDisplay[8][16];
+static char output[700];
 
 void move_cursor(int8_t x, int8_t y) {
     printf_P(PSTR("\x1b[%d;%dH"), y, x);
@@ -88,51 +89,69 @@ void draw_vertical_line(int8_t x, int8_t start_y, int8_t end_y) {
 }
 
 void display_score(uint32_t score){
+	set_display_attribute(FG_WHITE);
 	move_cursor(3,3);
 	//print score
 	//max value of uint16_t is 10 chars
 	printf_P(PSTR("Score: %10d"), score);
 }
 
-void terminal_update_square(PixelColour value, int y_coord, int x_coord) {
-	if (value != prevDisplay[x_coord][y_coord]) {
-		prevDisplay[x_coord][y_coord] = value;
-		DisplayParameter color_code;
-		//convert colours
-		switch (value) {
-			case COLOUR_BLACK :
-				color_code = FG_BLACK;
-				break;
-			case COLOUR_RED :
-				color_code = FG_RED;
-				break;
-			case COLOUR_GREEN :
-				color_code = FG_GREEN;
-				break;
-			case COLOUR_YELLOW :
-				color_code = FG_YELLOW;
-				break;
-			case COLOUR_ORANGE :
-				color_code = FG_WHITE;
-				break;
-			case COLOUR_LIGHT_ORANGE :
-				color_code = FG_CYAN;
-				break;
-			case COLOUR_LIGHT_YELLOW :
-				color_code = FG_MAGENTA;
-				break;
-			case COLOUR_LIGHT_GREEN :
-				color_code = FG_BLUE;
-				break;
-			default:
-				color_code = FG_BLACK;
+
+
+void terminal_draw(MatrixData displayMatrix) {
+	strcpy(output,"");
+	move_cursor(4, 6);
+	char *color_code;
+	char *prev_code;
+	prev_code = "";
+	for (int i = 0; i < BOARD_ROWS; i++) {
+		for (int j = 0; j < BOARD_WIDTH; j++) {
+			
+			//convert colours
+			switch (displayMatrix[i][j]) {
+				case COLOUR_BLACK :
+					color_code = "30";
+					break;
+				case COLOUR_RED :
+					color_code = "31";
+					break;
+				case COLOUR_GREEN :
+					color_code = "32";
+					break;
+				case COLOUR_YELLOW :
+					color_code = "33";
+					break;
+				case COLOUR_ORANGE :
+					color_code = "34";
+					break;
+				case COLOUR_LIGHT_ORANGE :
+					color_code = "35";
+					break;
+				case COLOUR_LIGHT_YELLOW :
+					color_code = "36";
+					break;
+				case COLOUR_LIGHT_GREEN :
+					color_code = "37";
+					break;
+				default:
+					color_code = "30";
+				}
+			if (prev_code != color_code) {
+				//add hash and colour code to string
+				strcat(output,"\x1b[");
+				strcat(output,color_code);
+				strcat(output,"m#");
+				prev_code = color_code;
+			} else {
+				strcat(output, "#");
+			}
 		}
-		//output
-		move_cursor(4 + x_coord, 6 + y_coord);
-		set_display_attribute(color_code);
-		printf("#");
-		set_display_attribute(FG_WHITE);
+		//add new line string and move cursor
+		strcat(output,"\n");
+		strcat(output,"\033[3C");
 	}
+	//output
+	printf("%s",output);
 }
 
 void draw_game_area(void) {
