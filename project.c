@@ -217,7 +217,7 @@ void play_game(void) {
 				goto drop;
 			}
 			//update terminal display of game
-			fast_terminal_drop();
+			fast_terminal_draw(0, 16);
 			last_drop_time = get_clock_ticks();
 		} else if(serial_input == 'p' || serial_input == 'P') {
 			// Unimplemented feature - pause/unpause the game until 'p' or 'P' is
@@ -237,7 +237,7 @@ void play_game(void) {
 				}
 			}
 			//update terminal display of game
-			fast_terminal_drop();
+			fast_terminal_draw(0, 16);
 			last_drop_time = get_clock_ticks();
 		}
 	}
