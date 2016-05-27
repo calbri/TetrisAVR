@@ -136,7 +136,7 @@ void new_game(void) {
 
 void play_game(void) {
 	uint32_t last_drop_time;
-	int8_t button;
+	int8_t button, game_paused;
 	char serial_input, escape_sequence_char;
 	uint8_t characters_into_escape_sequence = 0;
 	
@@ -221,10 +221,26 @@ void play_game(void) {
 			fast_terminal_draw(0, 16);
 			last_drop_time = get_clock_ticks();
 		} else if(serial_input == 'p' || serial_input == 'P') {
-			// Unimplemented feature - pause/unpause the game until 'p' or 'P' is
-			// pressed again. All other input (buttons, serial etc.) must be ignored.
-			
-			
+			// pause/un-pause the game until 'p' or 'P' is pressed again.
+			// All other input (buttons, serial etc.) must be ignored. Except new game.
+			game_paused = 1;
+			//stop the game timer (see timer0.c for implementation of toggle_timer)
+			toggle_timer();
+			while (game_paused) {
+				//wait for only a 'p' or an 'n' to come through
+				if (serial_input_available()) {
+					serial_input = fgetc(stdin);
+					if (serial_input == 'p' || serial_input == 'P') {
+						game_paused = 0;
+					}
+					if (serial_input == 'n' || serial_input == 'n') {
+						game_paused = 0;
+						new_game();
+					}
+				}
+			}
+			//restart the game timer
+			toggle_timer();
 		} else if(serial_input == 'n' || serial_input == 'n') {
 			//reset the game state and begin a new game
 			//TO DO LATER: save high-score here
