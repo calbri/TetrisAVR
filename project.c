@@ -19,6 +19,7 @@
 #include "terminalio.h"
 #include "score.h"
 #include "timer0.h"
+#include "timer1.h"
 #include "game.h"
 
 #define F_CPU 8000000L
@@ -35,6 +36,9 @@ void handle_new_lap(void);
 
 // ASCII code for Escape character
 #define ESCAPE_CHAR 27
+
+//for acceleration
+int ticker_interval = 600;
 
 /////////////////////////////// main //////////////////////////////////
 int main(void) {
@@ -251,7 +255,10 @@ void play_game(void) {
 		// do nothing
 		
 		// Check for timer related events here
-		if(get_clock_ticks() >= last_drop_time + 600) {
+		//reduce the ticker interval, apply acceleration (scales with score)
+		//WRAPS AT ticker_interval, aka when time between gets down to 0
+		int acceleration = ((get_score()/10)%ticker_interval);
+		if(get_clock_ticks() >= last_drop_time + (ticker_interval-acceleration)) {
 			// 600ms (0.6 second) has passed since the last time we dropped
 			// a block, so drop it now.
 			if(!attempt_drop_block_one_row()) {
