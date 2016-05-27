@@ -46,9 +46,6 @@ int main(void) {
 	// is complete
 	splash_screen();
 	
-	//initialise high score at 0
-	set_high_score(0);
-	
 	while(1) {
 		new_game();
 		play_game();
@@ -82,7 +79,7 @@ void splash_screen(void) {
 	
 	move_cursor(3,5);
 	set_display_attribute(FG_GREEN);	// Make the text green
-	printf_P(PSTR("CSSE2010/7201 Tetris Project by Ben Gattas and Callum Bryson"));	
+	printf_P(PSTR("CSSE2010/7201 Tetris Project by <your name(s) here>"));	
 	set_display_attribute(FG_WHITE);	// Return to default colour (White)
 	
 	// Output the scrolling message to the LED matrix
@@ -92,7 +89,7 @@ void splash_screen(void) {
 	// Red message the first time through
 	PixelColour colour = COLOUR_RED;
 	while(1) {
-		set_scrolling_display_text("TETRIS 43922604 43915398", colour);
+		set_scrolling_display_text("TETRIS", colour);
 		// Scroll the message until it has scrolled off the 
 		// display or a button is pushed. We pause for 130ms between each scroll.
 		while(scroll_display()) {
@@ -122,11 +119,6 @@ void new_game(void) {
 	
 	// Initialise the score
 	init_score();
-	//display score
-	display_score(get_score());
-	
-	//display game area
-	draw_game_area();
 	
 	// Delete any pending button pushes or serial input
 	empty_button_queue();
@@ -202,20 +194,13 @@ void play_game(void) {
 			// Attempt to rotate
 			(void)attempt_rotation();
 		} else if (button==1 || escape_sequence_char == 'B') {
-			// Attempt to drop block 
-			drop:if(!attempt_drop_block_one_row()) {
+			// Attempt to drop block
+			if(!attempt_drop_block_one_row()) {
 				// Drop failed - fix block to board and add new block
 				if(!fix_block_to_board_and_add_new_block()) {
 					break;	// GAME OVER
-				} else {
-					add_to_score(1); //block dropped
-					//display score
-					display_score(get_score());
 				}
-			} else {
-				//ADDED FUNCTIONALITY - repeat until can no longer be dropped
-				goto drop;
-			}
+			} 
 			last_drop_time = get_clock_ticks();
 		} else if(serial_input == 'p' || serial_input == 'P') {
 			// Unimplemented feature - pause/unpause the game until 'p' or 'P' is
@@ -244,17 +229,10 @@ void handle_game_over() {
 	move_cursor(10,14);
 	// Print a message to the terminal. 
 	printf_P(PSTR("GAME OVER"));
-	//output current high score
-	if (get_score() > get_high_score()) {
-		set_high_score(get_score());
-	}
 	move_cursor(10,15);
-	printf_P(PSTR("HIGH SCORE: %d"), get_high_score());
-	move_cursor(10,16);
 	printf_P(PSTR("Press a button to start again"));
 	while(button_pushed() == -1) {
 		; // wait until a button has been pushed
 	}
 	
 }
-

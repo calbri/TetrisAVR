@@ -23,4 +23,3 @@ typedef uint8_t PixelColour;
 #define COLOUR_LIGHT_GREEN 0x21
 
 #endif /* PIXEL_COLOUR_H_ */
-
