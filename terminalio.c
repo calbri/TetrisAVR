@@ -169,7 +169,7 @@ void terminal_draw(MatrixData displayMatrix, int start, int numRows) {
 	printf("%s",output);
 }
 
-void draw_game_area(void) {
+void draw_game_window(void) {
 	set_display_attribute(FG_WHITE);
 	move_cursor(3, 5);
 	printf_P(PSTR("##########"));
