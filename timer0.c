@@ -73,6 +73,11 @@ uint32_t get_clock_ticks(void) {
 	return return_value;
 }
 
+void toggle_timer(void) {
+	TCCR0B ^= (1<<CS01)|(1<<CS00);
+}
+
+
 /* Interrupt handler which fires when timer/counter 0 reaches 
  * the defined output compare value (every millisecond)
  */
