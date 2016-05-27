@@ -130,9 +130,9 @@ FallingBlock generate_random_block(void) {
 	block.pattern = block_library[block.blocknum].patterns[block.rotation];
 	block.colour = block_library[block.blocknum].colour;
 	
-	// Record the height and width of the block. We're using the default
-	// rotation so this is just the height and width as in the block library
-	if (block.rotation == 0 || block.rotation == 2) {
+	// Record the height and width of the block. Opposite rotations (i.e 0 and 2, 
+	// 1 and 3) have the same width and height (due to symmetry)
+	if (block.rotation % 2 == 0) {
 		block.height = block_library[block.blocknum].height;
 		block.width = block_library[block.blocknum].width;
 	} else {
@@ -143,14 +143,14 @@ FallingBlock generate_random_block(void) {
 	// Initial position (top right)
 	block.row = 0;		// top row
 	//determine randomized start point
-	if (random() % 2 == 0) {
-		block.column = 0;	// rightmost column
+	uint8_t randcol = random() % BOARD_WIDTH;
+	//make sure it doesn't go off the left edge
+	if (randcol+(block.width-1) >= BOARD_WIDTH) {
+		block.column = BOARD_WIDTH-block.width;	// rightmost column that's allowed
 	} else {
-		block.column = BOARD_WIDTH - (block.width);	// leftmost column
+		block.column = randcol;
 	}
-	
-	
-	
+
 	return block;
 }
 
