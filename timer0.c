@@ -54,6 +54,7 @@ void init_timer0(void) {
 	 * 1 to it.
 	 */
 	TIFR0 &= (1<<OCF0A);
+
 }
 
 uint32_t get_clock_ticks(void) {
@@ -75,6 +76,7 @@ uint32_t get_clock_ticks(void) {
 
 void toggle_timer(void) {
 	TCCR0B ^= (1<<CS01)|(1<<CS00);
+
 }
 
 

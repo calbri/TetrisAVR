@@ -63,9 +63,11 @@ void initialise_hardware(void) {
 	// Setup serial port for 19200 baud communication with no echo
 	// of incoming characters
 	init_serial_stdio(19200,0);
-	
+
 	// Set up our main timer to give us an interrupt every millisecond
 	init_timer0();
+	//set up the secondary timer to keep the seven_seg_display *always* displaying two digits
+	init_timer1();
 	
 	// Turn on global interrupts
 	sei();
