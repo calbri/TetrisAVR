@@ -263,7 +263,7 @@ static void check_for_completed_rows(void) {
 			//shuffle rows down
 			for(int j = i; j > 0; j--) {
 				board[j] = board[j-1];
-				for(uint8_t row = 0; row <MATRIX_NUM_ROWS; row++) {
+				for(uint8_t row = 0; row < MATRIX_NUM_ROWS; row++) {
 					board_display[j][row] = board_display[j-1][row];
 				}
 			}

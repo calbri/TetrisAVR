@@ -3,7 +3,7 @@
  *
  * Main file for the Tetris Project.
  *
- * Author: Peter Sutton. Modified by <YOUR NAME HERE>
+ * Author: Peter Sutton. Modified by Callum Bryson and Benedict Gattas
  */ 
 
 #include <avr/io.h>
@@ -92,7 +92,7 @@ void splash_screen(void) {
 	// Red message the first time through
 	PixelColour colour = COLOUR_RED;
 	while(1) {
-		set_scrolling_display_text("TETRIS 43922604 43915398", colour);
+		set_scrolling_display_text("TETRIS 43922604  43915398", colour);
 		// Scroll the message until it has scrolled off the 
 		// display or a button is pushed. We pause for 130ms between each scroll.
 		while(scroll_display()) {
@@ -122,11 +122,12 @@ void new_game(void) {
 	
 	// Initialise the score
 	init_score();
+	
 	//display score
 	display_score(get_score());
 	
 	//display game area
-	draw_game_area();
+	draw_game_window();
 	
 	// Delete any pending button pushes or serial input
 	empty_button_queue();
@@ -222,7 +223,13 @@ void play_game(void) {
 		} else if(serial_input == 'p' || serial_input == 'P') {
 			// Unimplemented feature - pause/unpause the game until 'p' or 'P' is
 			// pressed again. All other input (buttons, serial etc.) must be ignored.
-		} 
+			
+			
+		} else if(serial_input == 'n' || serial_input == 'n') {
+			//reset the game state and begin a new game
+			//TO DO LATER: save high-score here
+			new_game();
+		}
 		// else - invalid input or we're part way through an escape sequence -
 		// do nothing
 		
