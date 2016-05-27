@@ -207,17 +207,16 @@ void play_game(void) {
 		} else if (button==1 || escape_sequence_char == 'B') {
 			// Attempt to drop block 
 			drop:if(!attempt_drop_block_one_row()) {
-				// Drop failed - fix block to board and add new block
-				if(!fix_block_to_board_and_add_new_block()) {
-					break;	// GAME OVER
-				} else {
-					add_to_score(1); //block dropped
-					//display score
-					display_score(get_score());
-				}
+					// Drop failed - fix block to board and add new block
+					if(!fix_block_to_board_and_add_new_block()) {
+						break;	// GAME OVER
+					}
 			} else {
+				add_to_score(1); //block dropped
 				//ADDED FUNCTIONALITY - repeat until can no longer be dropped
 				goto drop;
+				//display score
+				display_score(get_score());
 			}
 			//update terminal display of game
 			fast_terminal_draw(0, 16);
