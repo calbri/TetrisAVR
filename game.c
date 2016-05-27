@@ -132,6 +132,9 @@ uint8_t attempt_move(int8_t direction) {
 	
 	// Update the rows which are affected
 	update_rows_on_display(current_block.row, current_block.height);
+	
+	//update terminal display of game
+	fast_terminal_drop();
 	return 1;
 }
 
@@ -214,6 +217,9 @@ uint8_t attempt_rotation(void) {
 	add_current_block_to_board_display();
 
 	update_rows_on_display(current_block.row, rows_affected);
+	
+	//update terminal display of game
+	fast_terminal_drop();
 	
 	// Rotation has happened - return true
 	return 1;
@@ -381,4 +387,8 @@ static void add_current_block_to_board_display(void) {
 			}
 		}
 	}
+}
+
+void fast_terminal_drop(void) {
+	terminal_draw(board_display);
 }

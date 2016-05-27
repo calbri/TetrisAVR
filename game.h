@@ -59,3 +59,5 @@ uint8_t attempt_rotation(void);
  * (new block could not be added - game over) or 1 on success.
  */
 uint8_t fix_block_to_board_and_add_new_block(void);
+
+void fast_terminal_drop(void);

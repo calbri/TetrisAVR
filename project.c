@@ -216,6 +216,8 @@ void play_game(void) {
 				//ADDED FUNCTIONALITY - repeat until can no longer be dropped
 				goto drop;
 			}
+			//update terminal display of game
+			fast_terminal_drop();
 			last_drop_time = get_clock_ticks();
 		} else if(serial_input == 'p' || serial_input == 'P') {
 			// Unimplemented feature - pause/unpause the game until 'p' or 'P' is
@@ -234,6 +236,8 @@ void play_game(void) {
 					break;	// GAME OVER
 				}
 			}
+			//update terminal display of game
+			fast_terminal_drop();
 			last_drop_time = get_clock_ticks();
 		}
 	}

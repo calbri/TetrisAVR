@@ -11,6 +11,7 @@
 #define TERMINAL_IO_H_
 
 #include <stdint.h>
+#include <string.h>
 #include "pixel_colour.h"
 /*
  * x (column number) and y (row number) are measured relative to the top
@@ -90,7 +91,16 @@ void draw_vertical_line(int8_t x, int8_t starty, int8_t endy);
 //display the current score
 void display_score(uint32_t);
 
-void terminal_update_square(PixelColour value, int x_coord, int y_coord); 
+#define MATRIX_NUM_COLUMNS 16
+#define MATRIX_NUM_ROWS 8
+
+#define BOARD_ROWS 16
+#define BOARD_WIDTH 8
+
+// Data types which can be used to store display information
+typedef PixelColour MatrixData[MATRIX_NUM_COLUMNS][MATRIX_NUM_ROWS];
+
+void terminal_draw(MatrixData displayMatrix); 
 
 void draw_game_area(void);
 
