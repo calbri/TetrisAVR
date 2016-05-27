@@ -42,8 +42,8 @@ void init_timer1(void) {
 	/* Make all bits of port A and the least significant
 	** bit of port C be output bits.
 	*/
-	DDRA = 0xFF;
-	DDRC = 0x01;
+	DDRC = 0xFF;
+	DDRA = 0x01;
 	
 	/* Reset clock tick count. L indicates a long (32 bit) 
 	 * constant. 
@@ -74,24 +74,6 @@ void init_timer1(void) {
 	 */
 	TIFR1 &= (1<<OCF1A);
 }
-/*
-uint32_t get_clock_ticks(void) {
-	uint32_t return_value;
-
-	/* Disable interrupts so we can be sure that the interrupt
-	 * doesn't fire when we've copied just a couple of bytes
-	 * of the value. Interrupts are re-enabled if they were
-	 * enabled at the start.
-	 
-	uint8_t interrupts_were_on = bit_is_set(SREG, SREG_I);
-	cli();
-	return_value = clock_ticks;
-	if(interrupts_were_on) {
-		sei();
-	}
-	return return_value;
-}
-*/
 
 /* Interrupt handler which fires when timer/counter 0 reaches 
  * the defined output compare value (every millisecond)
@@ -109,13 +91,13 @@ ISR(TIMER1_COMPA_vect) {
 	/* Display a digit */
 	if(seven_seg_cc == 0) {
 		/* Display rightmost digit - seconds */
-		PORTA = seven_seg_data[number_to_display%10];
+		PORTC = seven_seg_data[number_to_display%10];
 	} else {
 		/* Display leftmost digit - ten seconds  */
-		PORTA = seven_seg_data[(number_to_display-(number_to_display%10))/10] ;
+		PORTC = seven_seg_data[(number_to_display-(number_to_display%10))/10] ;
 	}
 	/* Output the digit selection (CC) bit */
-	PORTC = seven_seg_cc;	
+	PORTA = seven_seg_cc;	
 	
 }
 

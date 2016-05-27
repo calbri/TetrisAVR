@@ -18,13 +18,5 @@
  */
 void init_timer1(void);
 
-/* Return the current clock tick value - milliseconds since the timer was
- * initialised.
- */
-//uint32_t get_clock_ticks(void);
-
-//Toggle whether the timer is on or off
-//void toggle_timer(void);
-
 void set_row_count(uint8_t row_count);
 #endif
