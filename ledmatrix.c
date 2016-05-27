@@ -30,7 +30,6 @@ void ledmatrix_update_all(MatrixData data) {
 	for(uint8_t y=0; y<MATRIX_NUM_ROWS; y++) {
 		for(uint8_t x=0; x<MATRIX_NUM_COLUMNS; x++) {
 			(void)spi_send_byte(data[x][y]);
-			(void)terminal_update_square(data[x][y], x, y);
 		}
 	}
 }
@@ -39,7 +38,6 @@ void ledmatrix_update_pixel(uint8_t x, uint8_t y, PixelColour pixel) {
 	(void)spi_send_byte(CMD_UPDATE_PIXEL);
 	(void)spi_send_byte( ((y & 0x07)<<4) | (x & 0x0F));
 	(void)spi_send_byte(pixel);
-	(void)terminal_update_square(pixel, x, y);
 }
 
 void ledmatrix_update_row(uint8_t y, MatrixRow row) {
@@ -47,7 +45,6 @@ void ledmatrix_update_row(uint8_t y, MatrixRow row) {
 	(void)spi_send_byte(y & 0x07);	// row number
 	for(uint8_t x = 0; x<MATRIX_NUM_COLUMNS; x++) {
 		(void)spi_send_byte(row[x]);
-		(void)terminal_update_square(row[x], x, y);
 	}
 }
 
@@ -56,7 +53,6 @@ void ledmatrix_update_column(uint8_t x, MatrixColumn col) {
 	(void)spi_send_byte(x & 0x0F); // column number
 	for(uint8_t y = 0; y<MATRIX_NUM_ROWS; y++) {
 		(void)spi_send_byte(col[y]);
-		(void)terminal_update_square(col[y], x, y);
 	}
 }
 
