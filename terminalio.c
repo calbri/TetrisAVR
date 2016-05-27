@@ -96,7 +96,7 @@ void display_score(uint32_t score){
 
 
 
-void terminal_draw(MatrixData displayMatrix) {
+void terminal_draw(MatrixData displayMatrix, int start, int numRows) {
 	//memory allocation SHOULD BE MADE LOWER LATER ON
 	//THIS IS VERY VERY IMPORTANT TO FUTURE CALLUM
 	//WHO WILL READ THIS THE NIGHT BEFORE IT'S DUE
@@ -110,7 +110,7 @@ void terminal_draw(MatrixData displayMatrix) {
 	char *prev_code;
 	prev_code = "";
 	//loop through current display matrix
-	for (int i = 0; i < BOARD_ROWS; i++) {
+	for (int i = start; i < numRows; i++) {
 		for (int j = 0; j < BOARD_WIDTH; j++) {
 			//convert colours
 			switch (displayMatrix[i][j]) {

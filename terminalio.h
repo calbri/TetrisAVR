@@ -100,7 +100,7 @@ void display_score(uint32_t);
 // Data types which can be used to store display information
 typedef PixelColour MatrixData[MATRIX_NUM_COLUMNS][MATRIX_NUM_ROWS];
 
-void terminal_draw(MatrixData displayMatrix); 
+void terminal_draw(MatrixData displayMatrix, int start, int numRows); 
 
 void draw_game_area(void);
 

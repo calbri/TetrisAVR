@@ -68,6 +68,7 @@ void init_game(void) {
 		}
 	}
 	ledmatrix_update_all(board_display);
+	fast_terminal_draw(0, 16);
 	
 	// Adding a random block will update the "current_block" and 
 	// add it to the board.	With an empty board this will always
@@ -130,11 +131,12 @@ uint8_t attempt_move(int8_t direction) {
 	current_block = tmp_block;
 	add_current_block_to_board_display();
 	
+	fast_terminal_draw(0, current_block.row + current_block.height);
 	// Update the rows which are affected
 	update_rows_on_display(current_block.row, current_block.height);
 	
 	//update terminal display of game
-	fast_terminal_drop();
+	
 	return 1;
 }
 
@@ -219,7 +221,7 @@ uint8_t attempt_rotation(void) {
 	update_rows_on_display(current_block.row, rows_affected);
 	
 	//update terminal display of game
-	fast_terminal_drop();
+	fast_terminal_draw(0, current_block.row + rows_affected);
 	
 	// Rotation has happened - return true
 	return 1;
@@ -389,6 +391,6 @@ static void add_current_block_to_board_display(void) {
 	}
 }
 
-void fast_terminal_drop(void) {
-	terminal_draw(board_display);
+void fast_terminal_draw(int start, int numRows) {
+	terminal_draw(board_display, start, numRows);
 }
