@@ -15,6 +15,7 @@
 #include "score.h"
 #include "ledmatrix.h"
 #include "terminalio.h"
+#include "timer1.h"
 
 /*
  * Function prototypes.
@@ -52,7 +53,7 @@ rowtype    board[BOARD_ROWS];
 MatrixColumn board_display[BOARD_ROWS];
 FallingBlock current_block;	// Current dropping block - there will 
 							// always be one if the game is being played
-
+uint8_t cleared_row_count;
 /* 
  * Initialise board - all the row data will be empty (0) and we
  * create an initial random block and add it to the top of the board.
@@ -70,6 +71,12 @@ void init_game(void) {
 	ledmatrix_update_all(board_display);
 	fast_terminal_draw(0, 16);
 	
+	//initialise the cleared row count on the seven_seg display (code for display in timer1.c)
+	cleared_row_count = 0;
+	//this function is defined in timer1.c, and simply sets the number of cleared rows
+	//to be displayed
+	set_row_count(0);
+
 	// Adding a random block will update the "current_block" and 
 	// add it to the board.	With an empty board this will always
 	// succeed so we ignore the return value - this is indicated 
@@ -275,6 +282,8 @@ static void check_for_completed_rows(void) {
 		}
 	}
 	if (row_complete == 1) {
+		cleared_row_count++;
+		set_row_count(cleared_row_count);
 		check_for_completed_rows();
 	}
 }
