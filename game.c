@@ -29,7 +29,7 @@
  * of the file - after the implementations of the publicly
  * available functions.
  */
-static void check_for_completed_rows(void);
+static void check_for_completed_rows(int);
 static uint8_t add_random_block(void);
 static uint8_t block_collides(FallingBlock block);
 static void remove_current_block_from_board_display(void);
@@ -246,7 +246,8 @@ uint8_t fix_block_to_board_and_add_new_block(void) {
 		board[board_row] |= 
 				(current_block.pattern[row]	<< current_block.column);
 	}
-	check_for_completed_rows();
+	int scoring_combo = 0;
+	check_for_completed_rows(scoring_combo);
 	return add_random_block();
 }
 
@@ -260,13 +261,12 @@ uint8_t fix_block_to_board_and_add_new_block(void) {
  * removed then we update the LED matrix. (Each row on the board corresponds
  * to a column on the LED matrix.)
  */
-static void check_for_completed_rows(void) {
+static void check_for_completed_rows(int scoring_combo) {
 	int row_complete = 0;
 	for(int i = 0; i < BOARD_ROWS; i++) {
 		if (board[i] == ((1 << BOARD_WIDTH) - 1)) {
 			//completed row, add 100 to score
-			add_to_score(100);
-			display_score(get_score());
+			scoring_combo++;
 			//shuffle rows down
 			for(int j = i; j > 0; j--) {
 				board[j] = board[j-1];
@@ -284,7 +284,11 @@ static void check_for_completed_rows(void) {
 	if (row_complete == 1) {
 		cleared_row_count++;
 		set_row_count(cleared_row_count);
-		check_for_completed_rows();
+		check_for_completed_rows(scoring_combo);
+	} else {
+		//end of the recursion chain, update the score  (n^2 * 100)
+		add_to_score(scoring_combo*scoring_combo*100);
+		display_score(get_score());
 	}
 }
 	
