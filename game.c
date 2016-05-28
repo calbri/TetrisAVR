@@ -301,6 +301,17 @@ static void check_for_completed_rows(int scoring_combo) {
 		//end of the recursion chain, update the score  (n^2 * 100)
 		add_to_score(scoring_combo*scoring_combo*100);
 		display_score(get_score());
+		//if a TETRIS is made, flash the screen
+		if (scoring_combo == 4) {
+			MatrixColumn TETRIS_display[BOARD_ROWS];
+			for(uint8_t row=0; row < BOARD_ROWS; row++) {
+				for(uint8_t col=0; col < MATRIX_NUM_ROWS; col++) {
+					TETRIS_display[row][col] = 0x0F;
+				}
+			}
+			ledmatrix_update_all(TETRIS_display);
+			ledmatrix_update_all(board_display);
+		}
 	}
 }
 	
