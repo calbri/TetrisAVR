@@ -19,4 +19,7 @@
 void init_timer1(void);
 
 void set_row_count(uint8_t row_count);
+
+uint8_t get_row_count(void);
+
 #endif

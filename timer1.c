@@ -19,6 +19,8 @@ static volatile uint32_t clock1_ticks;
 
 /* The (mod 100) count of how many rows have been completed
  */
+
+static volatile uint8_t number_of_rows;
 static volatile uint8_t number_to_display;
 
 /* Seven segment display digit being displayed.
@@ -38,7 +40,7 @@ uint8_t seven_seg_data[10] = {63,6,91,79,102,109,125,7,127,111};
  */
 void init_timer1(void) {
 	//set the initial number of completed rows to 0
-	number_to_display = 0;
+	set_row_count(0);
 	/* Make all bits of port A and the least significant
 	** bit of port C be output bits.
 	*/
@@ -103,5 +105,11 @@ ISR(TIMER1_COMPA_vect) {
 
 void set_row_count(uint8_t row_count) {
 	//display within 100
-	number_to_display = (row_count % 100);
+	number_of_rows = row_count;
+	number_to_display = (number_of_rows % 100);
+}
+
+uint8_t get_row_count(void) {
+	//return the current row count
+	return(number_of_rows);
 }
