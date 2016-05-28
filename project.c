@@ -135,6 +135,9 @@ void new_game(void) {
 	//display game area
 	draw_game_window();
 	
+	//display initial next block
+	initial_display_next_block();
+	
 	// Delete any pending button pushes or serial input
 	empty_button_queue();
 	clear_serial_input_buffer();
