@@ -30,6 +30,7 @@
  * available functions.
  */
 static void check_for_completed_rows(int);
+static uint8_t gen_random_block(void);
 static uint8_t add_random_block(void);
 static uint8_t block_collides(FallingBlock block);
 static void remove_current_block_from_board_display(void);
@@ -53,6 +54,8 @@ rowtype    board[BOARD_ROWS];
 MatrixColumn board_display[BOARD_ROWS];
 FallingBlock current_block;	// Current dropping block - there will 
 							// always be one if the game is being played
+							
+FallingBlock next_block;
 uint8_t cleared_row_count;
 /* 
  * Initialise board - all the row data will be empty (0) and we
@@ -82,7 +85,16 @@ void init_game(void) {
 	// succeed so we ignore the return value - this is indicated 
 	// by the (void) cast. This function will update the display
 	// for the required rows.
+	(void)gen_random_block();
 	(void)add_random_block();
+	
+}
+
+void initial_display_next_block(void) {
+	//workaround for terminal being cleared before
+	//next block can be shown on game start
+	//also display next block
+	draw_next_block(next_block);
 }
 
 /* 
@@ -325,8 +337,16 @@ static void check_for_completed_rows(int scoring_combo) {
  * Add random block, return false (0) if we can't add the block - this
  * means the game is over, otherwise we return 1.
  */
+static uint8_t gen_random_block(void) {
+	next_block = generate_random_block();	
+	//display next block
+	draw_next_block(next_block);
+	return 1;
+}
+
 static uint8_t add_random_block(void) {
-	current_block = generate_random_block();
+	current_block = next_block;
+	gen_random_block();	
 	// Check if the block will collide with the fixed blocks on the board
 	if(block_collides(current_block)) {
 		/* Block will collide. We don't add the block - just return 0 - 
@@ -390,6 +410,7 @@ static void remove_current_block_from_board_display(void) {
  * Add the current block to the display structure
  */
 static void add_current_block_to_board_display(void) {
+	//rest of method
 	for(uint8_t row = 0; row < current_block.height; row++) {
 		uint8_t board_row = row + current_block.row;
 		for(uint8_t col = 0; col < current_block.width; col++) {

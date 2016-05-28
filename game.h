@@ -23,6 +23,8 @@
  */
 void init_game(void); 
 
+void initial_display_next_block(void);
+
 /* 
  * Update the display for rows starting from the given row
  * (row_start) and doing so for num_rows rows. row_start should be between

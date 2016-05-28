@@ -13,6 +13,8 @@
 #include <stdint.h>
 #include <string.h>
 #include "pixel_colour.h"
+#include "blocks.h"
+
 /*
  * x (column number) and y (row number) are measured relative to the top
  * left of the screen. First column is 1, first row is 1.
@@ -103,5 +105,7 @@ typedef PixelColour MatrixData[MATRIX_NUM_COLUMNS][MATRIX_NUM_ROWS];
 void terminal_draw(MatrixData displayMatrix, int start, int numRows); 
 
 void draw_game_window(void);
+
+void draw_next_block(FallingBlock block);
 
 #endif /* TERMINAL_IO_H */

@@ -181,3 +181,65 @@ void draw_game_window(void) {
 	printf_P(PSTR("##########"));
 	
 }
+
+void draw_next_block(FallingBlock block) {
+	move_cursor(20, 10);
+	printf("     ");
+	move_cursor(20, 11);
+	printf("     ");
+	move_cursor(20, 12);
+	printf("     ");
+	move_cursor(20, 13);
+	printf("     ");
+	move_cursor(20, 14);
+	printf("     ");
+	move_cursor(20, 10);
+	char output[50];
+	char *color_code;
+	strcpy(output, "");
+	//convert colours
+	switch (block.colour) {
+		case COLOUR_BLACK :
+		color_code = "30";
+		break;
+		case COLOUR_RED :
+		color_code = "31";
+		break;
+		case COLOUR_GREEN :
+		color_code = "32";
+		break;
+		case COLOUR_YELLOW :
+		color_code = "33";
+		break;
+		case COLOUR_ORANGE :
+		color_code = "34";
+		break;
+		case COLOUR_LIGHT_ORANGE :
+		color_code = "35";
+		break;
+		case COLOUR_LIGHT_YELLOW :
+		color_code = "36";
+		break;
+		case COLOUR_LIGHT_GREEN :
+		color_code = "37";
+		break;
+		default:
+		color_code = "30";
+	}
+	strcat(output,"\x1b[");
+	strcat(output,color_code);
+	strcat(output,"m");
+	for(uint8_t row = 0; row < block.height; row++) {
+		for(int col = (block.width - 1); col >= 0; col--) {
+			if(block.pattern[row] & (1 << col)) {
+				strcat(output, "#");
+			} else {
+				strcat(output, " ");
+			}
+		}
+		//add new line string and move cursor
+		strcat(output,"\n");
+		strcat(output,"\033[19C");
+	}
+	printf("%s", output); 
+}
