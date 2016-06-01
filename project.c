@@ -54,6 +54,9 @@ int main(void) {
 	set_high_score(0);
 	
 	while(1) {
+		//seed the random number generator
+		//multiply by 10 to get good spread
+		srandom(get_clock_ticks()*10);
 		new_game();
 		play_game();
 		handle_game_over();
