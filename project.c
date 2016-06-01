@@ -20,6 +20,7 @@
 #include "score.h"
 #include "timer0.h"
 #include "timer1.h"
+#include "timer2.h"
 #include "game.h"
 
 #define F_CPU 8000000L
@@ -73,9 +74,10 @@ void initialise_hardware(void) {
 
 	// Set up our main timer to give us an interrupt every millisecond
 	init_timer0();
-	//set up the secondary timer to keep the seven_seg_display *always* displaying two digits
+	//play music
 	init_timer1();
-	
+	//set up the secondary timer to keep the seven_seg_display *always* displaying two digits
+	init_timer2();	
 	// Turn on global interrupts
 	sei();
 }

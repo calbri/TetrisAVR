@@ -15,7 +15,7 @@
 #include "score.h"
 #include "ledmatrix.h"
 #include "terminalio.h"
-#include "timer1.h"
+#include "timer2.h"
 
 /*
  * Function prototypes.
