@@ -85,6 +85,11 @@ void init_game(void) {
 	// succeed so we ignore the return value - this is indicated 
 	// by the (void) cast. This function will update the display
 	// for the required rows.
+	
+	//run once to clear out random number generator (?)
+	(void)gen_random_block();
+	
+	
 	(void)gen_random_block();
 	(void)add_random_block();
 	

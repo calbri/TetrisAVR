@@ -120,11 +120,13 @@ FallingBlock generate_random_block(void) {
 	FallingBlock block;	// This will be our return value
 
 	// Pick a random block
-	block.blocknum = random() % NUM_BLOCKS_IN_LIBRARY;
+	uint8_t randBlock = (random() % NUM_BLOCKS_IN_LIBRARY);
+	block.blocknum = randBlock;
 	
 	// Initial rotation (no rotation by default)
 	// ADDED: randomised out of the 4 options
-	block.rotation = random() % 4;	
+	uint8_t randRotation = (random() % NUM_ROTATIONS); 
+	block.rotation = randRotation;
 	
 	// Copy the relevant details of the block to our return value
 	block.pattern = block_library[block.blocknum].patterns[block.rotation];

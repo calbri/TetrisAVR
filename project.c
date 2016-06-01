@@ -47,6 +47,9 @@ int main(void) {
 	// interrupts.
 	initialise_hardware();
 	
+	//storage
+	manage_eeprom();
+	
 	// Show the splash screen message. Returns when display
 	// is complete
 	splash_screen();
@@ -55,6 +58,9 @@ int main(void) {
 	set_high_score(0);
 	
 	while(1) {
+		//seed the random number generator
+		//multiply by 10 to get good spread
+		srandom(get_clock_ticks()*10);
 		new_game();
 		play_game();
 		handle_game_over();
@@ -146,14 +152,18 @@ void new_game(void) {
 }
 
 void play_game(void) {
-	uint32_t last_drop_time;
-	int8_t button, game_paused;
+	uint32_t last_drop_time, last_btn_time;
+	int8_t button, game_paused, last_button;
 	char serial_input, escape_sequence_char;
 	uint8_t characters_into_escape_sequence = 0;
+	
+	int firstRepeat = 0;
+	last_button = -2;
 	
 	// Record the last time a block was dropped as the current time -
 	// this ensures we don't drop a block immediately.
 	last_drop_time = get_clock_ticks();
+	last_btn_time = get_clock_ticks();
 	
 	// We play the game forever. If the game is over, we will break out of
 	// this loop. The loop checks for events (button pushes, serial input etc.)
@@ -174,96 +184,127 @@ void play_game(void) {
 		escape_sequence_char = -1;
 		button = button_pushed();
 		
-		if(button == -1) {
-			// No push button was pushed, see if there is any serial input
-			if(serial_input_available()) {
-				// Serial data was available - read the data from standard input
-				serial_input = fgetc(stdin);
-				// Check if the character is part of an escape sequence
-				if(characters_into_escape_sequence == 0 && serial_input == ESCAPE_CHAR) {
-					// We've hit the first character in an escape sequence (escape)
-					characters_into_escape_sequence++;
-					serial_input = -1; // Don't further process this character
-				} else if(characters_into_escape_sequence == 1 && serial_input == '[') {
-					// We've hit the second character in an escape sequence
-					characters_into_escape_sequence++;
-					serial_input = -1; // Don't further process this character
-				} else if(characters_into_escape_sequence == 2) {
-					// Third (and last) character in the escape sequence
-					escape_sequence_char = serial_input;
-					serial_input = -1;  // Don't further process this character - we
-										// deal with it as part of the escape sequence
-					characters_into_escape_sequence = 0;
-				} else {
-					// Character was not part of an escape sequence (or we received
-					// an invalid second character in the sequence). We'll process 
-					// the data in the serial_input variable.
-					characters_into_escape_sequence = 0;
-				}
-			}
-		}
-		
-		// Process the input. 
-		if(button==3 || escape_sequence_char=='D') {
-			// Attempt to move left
-			(void)attempt_move(MOVE_LEFT);
-		} else if(button==0 || escape_sequence_char=='C') {
-			// Attempt to move right
-			(void)attempt_move(MOVE_RIGHT);
-		} else if (button==2 || escape_sequence_char == 'A') {
-			// Attempt to rotate
-			(void)attempt_rotation();
-		} else if (button==1 || escape_sequence_char == 'B') {
-			// Attempt to drop block 
-			drop:if(!attempt_drop_block_one_row()) {
-					// Drop failed - fix block to board and add new block
-					if(!fix_block_to_board_and_add_new_block()) {
-						break;	// GAME OVER
+		//check if last button pressed was the same as this one
+		if (last_button == button) {
+			if (firstRepeat == 0) {
+				if (get_clock_ticks() >= last_btn_time + 500) {
+					if(button==3 || escape_sequence_char=='D') {
+						// Attempt to move left
+						(void)attempt_move(MOVE_LEFT);
+						} else if(button==0 || escape_sequence_char=='C') {
+						// Attempt to move right
+						(void)attempt_move(MOVE_RIGHT);
+						} else if (button==2 || escape_sequence_char == 'A') {
+						// Attempt to rotate
+						(void)attempt_rotation();
 					}
+					firstRepeat = 1;
+				}
 			} else {
-				add_to_score(1); //block dropped
-				//ADDED FUNCTIONALITY - repeat until can no longer be dropped
-				goto drop;
-				//display score
-				display_score(get_score());
-			}
-			//update terminal display of game
-			fast_terminal_draw(0, 16);
-			last_drop_time = get_clock_ticks();
-		} else if(serial_input == 'p' || serial_input == 'P') {
-			// pause/un-pause the game until 'p' or 'P' is pressed again.
-			// All other input (buttons, serial etc.) must be ignored. Except new game.
-			game_paused = 1;
-			//stop the game timer (see timer0.c for implementation of toggle_timer)
-			toggle_timer();
-			while (game_paused) {
-				//wait for only a 'p' or an 'n' to come through
-				if (serial_input_available()) {
-					serial_input = fgetc(stdin);
-					if (serial_input == 'p' || serial_input == 'P') {
-						game_paused = 0;
-					}
-					if (serial_input == 'n' || serial_input == 'n') {
-						game_paused = 0;
-						new_game();
+				if (get_clock_ticks() >= last_btn_time + 50) {
+					if (get_clock_ticks() >= last_btn_time + 500) {
+						if(button==3 || escape_sequence_char=='D') {
+							// Attempt to move left
+							(void)attempt_move(MOVE_LEFT);
+							} else if(button==0 || escape_sequence_char=='C') {
+							// Attempt to move right
+							(void)attempt_move(MOVE_RIGHT);
+							} else if (button==2 || escape_sequence_char == 'A') {
+							// Attempt to rotate
+							(void)attempt_rotation();
+						}
 					}
 				}
 			}
-			//restart the game timer
-			toggle_timer();
-		} else if(serial_input == 'n' || serial_input == 'n') {
-			//reset the game state and begin a new game
-			//TO DO LATER: save high-score here
-			new_game();
+		} else {
+			last_btn_time = get_clock_ticks();
+			last_button = button;
+			if(button == -1) {
+				// No push button was pushed, see if there is any serial input
+				if(serial_input_available()) {
+					// Serial data was available - read the data from standard input
+					serial_input = fgetc(stdin);
+					// Check if the character is part of an escape sequence
+					if(characters_into_escape_sequence == 0 && serial_input == ESCAPE_CHAR) {
+						// We've hit the first character in an escape sequence (escape)
+						characters_into_escape_sequence++;
+						serial_input = -1; // Don't further process this character
+					} else if(characters_into_escape_sequence == 1 && serial_input == '[') {
+						// We've hit the second character in an escape sequence
+						characters_into_escape_sequence++;
+						serial_input = -1; // Don't further process this character
+					} else if(characters_into_escape_sequence == 2) {
+						// Third (and last) character in the escape sequence
+						escape_sequence_char = serial_input;
+						serial_input = -1;  // Don't further process this character - we
+											// deal with it as part of the escape sequence
+						characters_into_escape_sequence = 0;
+					} else {
+						// Character was not part of an escape sequence (or we received
+						// an invalid second character in the sequence). We'll process 
+						// the data in the serial_input variable.
+						characters_into_escape_sequence = 0;
+					}
+				}
+			}
+			// Process the input. 
+			if(button==3 || escape_sequence_char=='D') {
+				// Attempt to move left
+				(void)attempt_move(MOVE_LEFT);
+			} else if(button==0 || escape_sequence_char=='C') {
+				// Attempt to move right
+				(void)attempt_move(MOVE_RIGHT);
+			} else if (button==2 || escape_sequence_char == 'A') {
+				// Attempt to rotate
+				(void)attempt_rotation();
+			} else if (button==1 || escape_sequence_char == 'B') {
+				// Attempt to drop block 
+				drop:if(!attempt_drop_block_one_row()) {
+						// Drop failed - fix block to board and add new block
+						if(!fix_block_to_board_and_add_new_block()) {
+							break;	// GAME OVER
+						}
+				} else {
+					add_to_score(1); //block dropped
+					//ADDED FUNCTIONALITY - repeat until can no longer be dropped
+					goto drop;
+					//display score
+					display_score(get_score());
+				}
+				//update terminal display of game
+				fast_terminal_draw(0, 16);
+				last_drop_time = get_clock_ticks();
+			} else if(serial_input == 'p' || serial_input == 'P') {
+				// pause/un-pause the game until 'p' or 'P' is pressed again.
+				// All other input (buttons, serial etc.) must be ignored. Except new game.
+				game_paused = 1;
+				//stop the game timer (see timer0.c for implementation of toggle_timer)
+				toggle_timer();
+				while (game_paused) {
+					//wait for only a 'p' or an 'n' to come through
+					if (serial_input_available()) {
+						serial_input = fgetc(stdin);
+						if (serial_input == 'p' || serial_input == 'P') {
+							game_paused = 0;
+						}
+						if (serial_input == 'n' || serial_input == 'n') {
+							game_paused = 0;
+							new_game();
+						}
+					}
+				}
+				//restart the game timer
+				toggle_timer();
+			} else if(serial_input == 'n' || serial_input == 'n') {
+				//reset the game state and begin a new game
+				//TO DO LATER: save high-score here
+				new_game();
+			}
 		}
 		// else - invalid input or we're part way through an escape sequence -
 		// do nothing
 		
 		// Check for timer related events here
-		//reduce the ticker interval, apply acceleration (scales with score)
-		//WRAPS AT ticker_interval, aka when time between gets down to 0
-		//int acceleration = ((get_score()/10)%ticker_interval);
-		//if(get_clock_ticks() >= last_drop_time + (ticker_interval-acceleration)) {
 		int num_ticks = 600 - (get_row_count()*5);
 		if(get_clock_ticks() >= last_drop_time + num_ticks) {
 			// 600ms (0.6 second) has passed since the last time we dropped
@@ -283,17 +324,65 @@ void play_game(void) {
 }
 
 void handle_game_over() {
-	move_cursor(10,14);
+	empty_button_queue();
+	move_cursor(17,14);
 	// Print a message to the terminal. 
 	printf_P(PSTR("GAME OVER"));
 	//output current high score
 	if (get_score() > get_high_score()) {
 		set_high_score(get_score());
 	}
-	move_cursor(10,15);
+	move_cursor(17,15);
 	printf_P(PSTR("HIGH SCORE: %d"), get_high_score());
-	move_cursor(10,16);
+	move_cursor(17,16);
 	printf_P(PSTR("Press a button to start again"));
+	int new_best_score = 0;
+	//check for new high score
+	int8_t index = -1;
+	for (uint8_t j = 0; j<5; j++) {
+		if (get_score() > get_eeprom_scores()[j]) {
+			new_best_score = 1;
+			index = j;
+			break;
+		}
+	}
+	if (new_best_score == 1) {
+
+		//input a new best score
+		move_cursor(17,17);
+		printf_P(PSTR("Enter initials: "));
+		show_cursor();
+		static char initials[3];
+		char input = fgetc(stdin);
+		printf("%c", input);
+		initials[0] = input;
+		input = fgetc(stdin);
+		printf("%c", input);
+		initials[1] = input;
+		input = fgetc(stdin);
+		printf("%c", input);
+		initials[2] = input;
+		hide_cursor();
+		for (uint8_t j = 4; j > index; j--) {
+			store_eeprom_score(get_eeprom_scores()[j-1],j);
+			store_eeprom_initials(get_eeprom_initial(j-1),j);
+		}
+		store_eeprom_initials(initials, index);
+		store_eeprom_score(get_score(), index);
+	}
+	move_cursor(17,18);
+	printf_P(PSTR("High Scores: "));
+	move_cursor(17,19);
+	for (uint8_t i = 0; i < 5; i++) {
+		move_cursor(17, 19+i);
+		printf_P(PSTR("%10d"),get_eeprom_scores()[i]);
+		printf_P(PSTR(" "));
+		for (uint8_t j =0; j < 3; j++) {
+			char initialCharacter = get_eeprom_initial(i)[j];
+			printf("%c",initialCharacter);
+		}
+		
+	}
 	while(button_pushed() == -1) {
 		; // wait until a button has been pushed
 	}
