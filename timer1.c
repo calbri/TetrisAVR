@@ -93,11 +93,9 @@ uint8_t current_note;
  */
 void init_timer1(void) {
 	// Make pin A1 be an input (the mute switch) and pin A2 be the buzzer output
-	DDRA = (1<<1)|(0<<2);
+	DDRA |= (0<<1)|(1<<2);
 	
-	//set the initial note multiplier to a low G# (the base note)
 	//start the piece at note 0 (0ms to 250ms)
-	current_note_multiplier = 0;
 	current_note = 0;
 	toggle = 0;
 
@@ -107,14 +105,14 @@ void init_timer1(void) {
 	// Set the output compare value to be the first note, or a frequency of 415.3Hz aka an interrupt every 2.41ms
 	OCR1A = (note_frequencies[current_note]-1);
 	//Set up another interrupt to change note every 250ms
-	OCR1B = TCNT1 % 250;
+	OCR1B = 250;
 	
 	/* Set the timer to clear on compare match (CTC mode)
 	 * and to divide the clock by 8. This starts the timer
 	 * running.
 	 */
-	TCCR1A = (1<<WGM11);
-	TCCR1B = (1<<CS11);
+	TCCR1A = 0;
+	TCCR1B = (1<<WGM12)|(1<<CS11);
 
 	/* Enable an interrupt on output compare match. 
 	 * Note that interrupts have to be enabled globally
@@ -129,20 +127,20 @@ void init_timer1(void) {
 }
 
 /* Interrupt handler which fires when timer/counter 0 reaches 
- * the defined output compare value
+ * the defined output compare value. Toggles the buzzer
  */
 ISR(TIMER1_COMPA_vect) {
+	toggle = 1 ^ toggle ;
 	//check if mute is enabled
 	if (MUTE) {
 		//output a 0
-		PORTA |= (0<<2);
+		PORTA = (0<<2);
 	} else {
 		if (toggle) {
-			PORTA |= (1<<2);
+			PORTA = (1<<2);
 		} else {
-			PORTA |= (0<<2);
+			PORTA = (0<<2);
 		}
-		toggle = 1 ^ toggle ;
 	}
 	
 }
