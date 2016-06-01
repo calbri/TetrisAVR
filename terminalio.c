@@ -97,6 +97,7 @@ void display_score(uint32_t score){
 
 
 void terminal_draw(MatrixData displayMatrix, int start, int numRows) {
+	reverse_video();
 	//memory allocation SHOULD BE MADE LOWER LATER ON
 	//THIS IS VERY VERY IMPORTANT TO FUTURE CALLUM
 	//WHO WILL READ THIS THE NIGHT BEFORE IT'S DUE
@@ -141,24 +142,17 @@ void terminal_draw(MatrixData displayMatrix, int start, int numRows) {
 				default:
 					color_code = "30";
 			}
-			if (strcmp(color_code,"30") == 0) {
-				//black tile, make more efficient
-				//by just sending a space
-				//rather than a hash and colour info
-				strcat(output, " ");
+			if (prev_code != color_code) {
+				//add hash and colour code to string
+				//if different
+				strcat(output,"\x1b[");
+				strcat(output,color_code);
+				strcat(output,"m ");
+				prev_code = color_code;
 			} else {
-				if (prev_code != color_code) {
-					//add hash and colour code to string
-					//if different
-					strcat(output,"\x1b[");
-					strcat(output,color_code);
-					strcat(output,"m#");
-					prev_code = color_code;
-				} else {
-					//colour is the same as the block before
-					//no need to send colour info
-					strcat(output, "#");
-				}
+				//colour is the same as the block before
+				//no need to send colour info
+				strcat(output, " ");
 			}
 		}
 		//add new line string and move cursor
@@ -167,6 +161,7 @@ void terminal_draw(MatrixData displayMatrix, int start, int numRows) {
 	}
 	//output
 	printf("%s",output);
+	normal_display_mode();
 }
 
 void draw_game_window(void) {
@@ -179,7 +174,6 @@ void draw_game_window(void) {
 	}
 	move_cursor(3, 22);
 	printf_P(PSTR("##########"));
-	
 }
 
 void draw_next_block(FallingBlock block) {
@@ -197,6 +191,7 @@ void draw_next_block(FallingBlock block) {
 	char output[50];
 	char *color_code;
 	strcpy(output, "");
+	reverse_video();
 	//convert colours
 	switch (block.colour) {
 		case COLOUR_BLACK :
@@ -226,15 +221,16 @@ void draw_next_block(FallingBlock block) {
 		default:
 		color_code = "30";
 	}
-	strcat(output,"\x1b[");
-	strcat(output,color_code);
-	strcat(output,"m");
 	for(uint8_t row = 0; row < block.height; row++) {
 		for(int col = (block.width - 1); col >= 0; col--) {
 			if(block.pattern[row] & (1 << col)) {
-				strcat(output, "#");
+				strcat(output,"\x1b[");
+				strcat(output,color_code);
+				strcat(output,"m ");
 			} else {
-				strcat(output, " ");
+				strcat(output,"\x1b[");
+				strcat(output,"30");
+				strcat(output,"m ");
 			}
 		}
 		//add new line string and move cursor
@@ -242,4 +238,5 @@ void draw_next_block(FallingBlock block) {
 		strcat(output,"\033[19C");
 	}
 	printf("%s", output); 
+	normal_display_mode();
 }
