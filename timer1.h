@@ -14,4 +14,10 @@
 
 void init_timer1(void);
 
+void play_completed_row_tone(void);
+
+void set_music_speed(uint32_t new_speed);
+
+uint32_t get_music_speed(void);
+
 #endif

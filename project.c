@@ -158,10 +158,7 @@ void play_game(void) {
 	uint8_t characters_into_escape_sequence = 0;
 	
 	int firstRepeat = 0;
-<<<<<<< HEAD
 	last_button = -2;
-=======
->>>>>>> refs/remotes/origin/master
 	
 	// Record the last time a block was dropped as the current time -
 	// this ensures we don't drop a block immediately.

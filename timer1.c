@@ -160,15 +160,15 @@ ISR(TIMER1_COMPA_vect) {
 	}
 }
 
-void play_completed_row_tone() {
+void play_completed_row_tone(void) {
 	uint8_t mute = ((PINA & (1<<1)) >> 1);
 	
 }
 
 void set_music_speed(uint32_t new_speed) {
-	speed = new_speed
+	speed = new_speed;
 }
 
-uint32_t get_music_speed() {
+uint32_t get_music_speed(void) {
 	return speed;
 }
