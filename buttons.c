@@ -22,6 +22,9 @@ static volatile uint8_t last_button_state;
 #define BUTTON_QUEUE_SIZE 8
 static volatile uint8_t button_queue[BUTTON_QUEUE_SIZE];
 static volatile int8_t queue_length;
+static volatile uint8_t x_or_y = 0;	/* 0 = x, 1 = y */
+static volatile uint8_t most_recent_joystick;
+static volatile	uint8_t no_change_in_x, no_change_in_y;
 
 // Setup interrupt if any of pins B0 to B3 change. We do this
 // using a pin change interrupt. These pins correspond to pin
@@ -57,19 +60,7 @@ int8_t button_pushed(void) {
 		// we turn them back on when done.
 		return_value = button_queue[0];
 		
-		// Save whether interrupts were enabled and turn them off
-		int8_t interrupts_were_enabled = bit_is_set(SREG, SREG_I);
-		cli();
-		
-		/*for(uint8_t i = 1; i < queue_length; i++) {
-			button_queue[i-1] = button_queue[i];
-		}
-		queue_length--;*/ 
-		
-		if(interrupts_were_enabled) {
-			// Turn them back on again
-			sei();
-		}
+
 	}
 	return return_value;
 }
@@ -109,3 +100,64 @@ ISR(PCINT1_vect) {
 	// Remember this button state so we can detect changes next time
 	last_button_state = button_state;
 }
+
+uint8_t joystick_input(void) {
+	uint8_t return_value = -1;		//assume no joystick input
+	//Set the ADC mux to choose ADC6 if x_or_y is 0, ADC7 is x_or_y is 1
+	if(x_or_y == 0) {
+		ADMUX |= (1<<2)|(1<<1)|(1<<0);
+	} else {
+		ADMUX &= ~1;
+	}
+	//start the conversion
+	ADCSRA |= (1<<ADSC);
+	
+	while(ADCSRA & (1<<ADSC)) {
+		; /* Wait until conversion finished */
+	}	
+	//conversion is over
+	
+	//determine a value. 0 = right, 1=drop block, 2=rotate block, 3=left
+	//check x first, then y
+	if (x_or_y == 0) {
+		if (ADC > 700) {
+			most_recent_joystick = 0;
+			no_change_in_x = 0;
+		} else if (ADC < 300) {
+			most_recent_joystick = 3;
+			no_change_in_x = 0;			
+		} else {
+			//keep most_recent_joystick what it was
+			no_change_in_x = 1;
+		}
+	} else {
+		if (ADC > 700) {
+			most_recent_joystick = 2;
+			no_change_in_y = 0;
+		} else if (ADC < 300) {
+			most_recent_joystick = 1;
+			no_change_in_y = 0;
+		} else {
+			//keep most_recent_joystick what it was			
+			no_change_in_y = 1;
+		}
+	}
+	x_or_y ^= 1;
+	
+	if(no_change_in_x && no_change_in_y) {
+		most_recent_joystick = -1;
+	}
+	
+	return most_recent_joystick;
+	
+}
+
+uint8_t get_most_recent_joystick(void) {
+	return most_recent_joystick;
+}
+
+
+/*
+ISR(ADC) {
+	//do nothing
+}*/

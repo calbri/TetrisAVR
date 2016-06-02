@@ -54,6 +54,7 @@ ________________________________________________________________________________
 #include <avr/interrupt.h>
 
 #include "timer1.h"
+#include "timer2.h"
 
 //OCRA values, the note "frequency" array (see table above)
 //Let 1ms be 1000 in this array
@@ -63,7 +64,7 @@ uint32_t note_frequencies[11] = {2408, 2273, 2025, 1911, 1703, 1517, 1432, 1276,
 uint32_t numTicks;
 
 //a variable to track whether a piece, or a game buzz tone, is playing
-uint8_t game_tone_is_playing;
+volatile uint8_t game_tone_is_playing;
 
 //current note in the piece (0 to 255)
 uint8_t current_note;
@@ -104,7 +105,7 @@ void init_timer1(void) {
 	toggle = 0;
 	numTicks = 0;
 	game_tone_is_playing = 0;
-	speed_threshold = 250000;	//125000 is medium pace, 50-60000 is very fast
+	speed_threshold = 200000;	//125000 is medium pace, 50-60000 is very fast
 
 	/* Clear the timer */
 	TCNT1 = 0;
@@ -138,7 +139,7 @@ ISR(TIMER1_COMPA_vect) {
 	numTicks += OCR1A;
 	uint8_t mute = ((PINA & (1<<1)) >> 1);
 	if (game_tone_is_playing == 0) {
-		if (numTicks > speed_threshold) {
+		if (numTicks > (speed_threshold - (get_row_count()*10000))) {
 			numTicks = 0;
 			if (current_note==255){
 				current_note = 0;
@@ -161,7 +162,7 @@ ISR(TIMER1_COMPA_vect) {
 				OCR1A = 0.1*(note_frequencies[7]-1);
 		}
 		//play the tone the normal note length above
-		if (numTicks > speed_threshold) {
+		if (numTicks > (speed_threshold - (get_row_count()*10000))) {
 			numTicks = 0;
 		}
 		game_tone_is_playing = 0;
@@ -188,17 +189,4 @@ void play_game_tone(uint8_t tone_number) {
 	//if(interrupts_were_on) {
 	//	sei();
 	//}
-}
-
-void set_music_speed(uint32_t new_speed) {
-	//uint8_t interrupts_were_on = bit_is_set(SREG, SREG_I);
-	//cli();	
-	speed_threshold = new_speed;
-	//if(interrupts_were_on) {
-	//	sei();
-	//}
-}
-
-uint32_t get_music_speed(void) {
-	return speed_threshold;
 }

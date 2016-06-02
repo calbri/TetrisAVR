@@ -336,12 +336,7 @@ static void check_for_completed_rows(int scoring_combo) {
 	if (row_complete == 1) {
 		cleared_row_count++;
 		set_row_count(cleared_row_count);
-		play_game_tone(1);
-		if (get_row_count() < 30) {
-			set_music_speed(250000 - (get_row_count()*5000));
-		} else {
-			set_music_speed(100000);
-		}		
+		//play_game_tone(1);
 		check_for_completed_rows(scoring_combo);
 	} else {
 		//end of the recursion chain, update the score  (n^2 * 100)
@@ -349,8 +344,7 @@ static void check_for_completed_rows(int scoring_combo) {
 		display_score(get_score());
 		//if a TETRIS is made, flash the screen
 		if (scoring_combo == 4) {
-<<<<<<< HEAD
-			play_game_tone(2);
+			//play_game_tone(2);
 			MatrixColumn TETRIS_display[BOARD_ROWS];
 			for(uint8_t row=0; row < BOARD_ROWS; row++) {
 				for(uint8_t col=0; col < MATRIX_NUM_ROWS; col++) {
@@ -358,11 +352,8 @@ static void check_for_completed_rows(int scoring_combo) {
 				}
 			}
 			ledmatrix_update_all(TETRIS_display);
-			flash_red();
-=======
-			play_game_tone(1);
 			flash();
->>>>>>> origin/master
+			flash();
 			ledmatrix_update_all(board_display);
 		}
 	}

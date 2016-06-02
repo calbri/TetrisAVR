@@ -32,5 +32,9 @@ void empty_button_queue(void);
 
 int8_t button_pushed(void);
 
+uint8_t joystick_input(void);
+
+uint8_t get_most_recent_joystick(void);
+uint8_t get_x_or_y(void);
 
 #endif /* BUTTONS_H_ */

@@ -110,6 +110,6 @@ void set_row_count(uint8_t row_count) {
 }
 
 uint8_t get_row_count(void) {
-	//return the current row count
-	return(number_of_rows);
+	//return the current row count	
+	return(number_of_rows);	
 }

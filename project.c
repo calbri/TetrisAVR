@@ -81,6 +81,13 @@ void initialise_hardware(void) {
 	init_timer2();	
 	// Turn on global interrupts
 	sei();
+	
+	//set-up the joystick
+	ADMUX = (1<<REFS0);
+	ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1);	
+	
+	
+	
 }
 
 void splash_screen(void) {
@@ -162,18 +169,19 @@ void new_game(void) {
 }
 
 void play_game(void) {
-	uint32_t last_drop_time, last_btn_time, last_term_time;
-	int8_t button, game_paused, last_button;
+	uint32_t last_drop_time, last_term_time, last_input_time;
+	int8_t button, game_paused, last_button, joystick, last_joystick, joystick_x_or_y,last_joystick_x_or_y;
 	char serial_input, escape_sequence_char;
 	uint8_t characters_into_escape_sequence = 0;
 	
 	int firstRepeat = 0;
 	last_button = -2;
+	last_joystick = get_most_recent_joystick();
 	
 	// Record the last time a block was dropped as the current time -
 	// this ensures we don't drop a block immediately.
 	last_drop_time = get_clock_ticks();
-	last_btn_time = get_clock_ticks();
+	last_input_time = get_clock_ticks();
 	last_term_time = get_clock_ticks();
 	
 	// We play the game forever. If the game is over, we will break out of
@@ -201,42 +209,79 @@ void play_game(void) {
 		serial_input = -1;
 		escape_sequence_char = -1;
 		button = button_pushed();
-		
-		//check if last button pressed was the same as this one
-		if ((last_button == button) && button != -1) {
+		joystick = joystick_input();
+			
+		//check if last button pressed or joystick input was the same as this one
+		if ((last_button == button) && (button != -1)) {
 			if (firstRepeat == 0) {
-				if (get_clock_ticks() >= last_btn_time + 500) {
+				if (get_clock_ticks() >= last_input_time + 500) {
 					if(button==3 || escape_sequence_char=='D') {
 						// Attempt to move left
 						(void)attempt_move(MOVE_LEFT);
-						} else if(button==0 || escape_sequence_char=='C') {
+					} else if(button==0 || escape_sequence_char=='C') {
 						// Attempt to move right
 						(void)attempt_move(MOVE_RIGHT);
-						} else if (button==2 || escape_sequence_char == 'A') {
+					} else if (button==2 || escape_sequence_char == 'A') {
 						// Attempt to rotate
 						(void)attempt_rotation();
 					}
 					firstRepeat = 1;
 				}
 			} else {
-				if (get_clock_ticks() >= last_btn_time + 50) {
-					if (get_clock_ticks() >= last_btn_time + 500) {
+				if (get_clock_ticks() >= last_input_time + 50) {
+					if (get_clock_ticks() >= last_input_time + 500) {
 						if(button==3 || escape_sequence_char=='D') {
 							// Attempt to move left
 							(void)attempt_move(MOVE_LEFT);
-							} else if(button==0 || escape_sequence_char=='C') {
+						} else if(button==0 || escape_sequence_char=='C') {
 							// Attempt to move right
 							(void)attempt_move(MOVE_RIGHT);
-							} else if (button==2 || escape_sequence_char == 'A') {
+						} else if (button==2 || escape_sequence_char == 'A') {
 							// Attempt to rotate
 							(void)attempt_rotation();
 						}
 					}
 				}
 			}
+			
+		} else if ((last_joystick == joystick) && (joystick != -1)){
+			if (firstRepeat == 0) {
+				if (get_clock_ticks() >= last_input_time + 500) {
+					if(joystick==3) {
+						// Attempt to move left
+						(void)attempt_move(MOVE_LEFT);
+					} else if(joystick==0) {
+						// Attempt to move right
+						(void)attempt_move(MOVE_RIGHT);
+					} else if (joystick==2) {
+						// Attempt to rotate
+						(void)attempt_rotation();
+					}
+					firstRepeat = 1;
+				}
+			} else {
+				if (get_clock_ticks() >= last_input_time + 50) {
+					if (get_clock_ticks() >= last_input_time + 500) {
+						if (joystick==3) {
+							// Attempt to move left
+							(void)attempt_move(MOVE_LEFT);
+						} else if (joystick==0) {
+							// Attempt to move right
+							(void)attempt_move(MOVE_RIGHT);
+						} else if (joystick==2) {
+							// Attempt to rotate
+							(void)attempt_rotation();
+						}
+					}
+				}
+			}
+			
+		
 		} else {
-			last_btn_time = get_clock_ticks();
+			last_input_time = get_clock_ticks();
 			last_button = button;
+			last_joystick = joystick;
+					
 			if(button == -1) {
 				// No push button was pushed, see if there is any serial input
 				if(serial_input_available()) {
@@ -266,16 +311,16 @@ void play_game(void) {
 				}
 			}
 			// Process the input. 
-			if(button==3 || escape_sequence_char=='D') {
+			if(button==3 || escape_sequence_char=='D' || joystick==3) {
 				// Attempt to move left
 				(void)attempt_move(MOVE_LEFT);
-			} else if(button==0 || escape_sequence_char=='C') {
+			} else if(button==0 || escape_sequence_char=='C' || joystick==0) {
 				// Attempt to move right
 				(void)attempt_move(MOVE_RIGHT);
-			} else if (button==2 || escape_sequence_char == 'A') {
+			} else if (button==2 || escape_sequence_char == 'A' || joystick==2) {
 				// Attempt to rotate
 				(void)attempt_rotation();
-			} else if (button==1 || escape_sequence_char == 'B') {
+			} else if (button==1 || escape_sequence_char == 'B' || joystick==1) {
 				// Attempt to drop block 
 				drop:if(!attempt_drop_block_one_row()) {
 						// Drop failed - fix block to board and add new block
@@ -333,7 +378,6 @@ void play_game(void) {
 			num_ticks = 20;
 		}
 		
-
 		if(get_clock_ticks() >= last_drop_time + num_ticks) {
 			// 600ms (0.6 second) has passed since the last time we dropped
 			// a block, so drop it now.
