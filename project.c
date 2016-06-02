@@ -153,7 +153,7 @@ void new_game(void) {
 }
 
 void play_game(void) {
-	uint32_t last_drop_time, last_btn_time;
+	uint32_t last_drop_time, last_btn_time, last_term_time;
 	int8_t button, game_paused, last_button;
 	char serial_input, escape_sequence_char;
 	uint8_t characters_into_escape_sequence = 0;
@@ -165,11 +165,19 @@ void play_game(void) {
 	// this ensures we don't drop a block immediately.
 	last_drop_time = get_clock_ticks();
 	last_btn_time = get_clock_ticks();
+	last_term_time = get_clock_ticks();
 	
 	// We play the game forever. If the game is over, we will break out of
 	// this loop. The loop checks for events (button pushes, serial input etc.)
 	// and on a regular basis will drop the falling block down by one row.
 	while(1) {
+		
+		//update serial display
+		if(get_clock_ticks() > last_term_time + 100) {
+			fast_terminal_draw();
+			last_term_time = get_clock_ticks();
+		}
+		
 		
 		// Check for input - which could be a button push or serial input.
 		// Serial input may be part of an escape sequence, e.g. ESC [ D
@@ -186,7 +194,7 @@ void play_game(void) {
 		button = button_pushed();
 		
 		//check if last button pressed was the same as this one
-		if (last_button == button) {
+		if ((last_button == button) && button != -1) {
 			if (firstRepeat == 0) {
 				if (get_clock_ticks() >= last_btn_time + 500) {
 					if(button==3 || escape_sequence_char=='D') {
@@ -272,8 +280,6 @@ void play_game(void) {
 					//display score
 					display_score(get_score());
 				}
-				//update terminal display of game
-				fast_terminal_draw(0, 16);
 				last_drop_time = get_clock_ticks();
 			} else if(serial_input == 'p' || serial_input == 'P') {
 				// pause/un-pause the game until 'p' or 'P' is pressed again.
@@ -288,7 +294,7 @@ void play_game(void) {
 						if (serial_input == 'p' || serial_input == 'P') {
 							game_paused = 0;
 						}
-						if (serial_input == 'n' || serial_input == 'n') {
+						if (serial_input == 'n' || serial_input == 'N') {
 							game_paused = 0;
 							new_game();
 						}
@@ -296,10 +302,15 @@ void play_game(void) {
 				}
 				//restart the game timer
 				toggle_timer();
-			} else if(serial_input == 'n' || serial_input == 'n') {
+			} else if(serial_input == 'n' || serial_input == 'N') {
 				//reset the game state and begin a new game
 				//TO DO LATER: save high-score here
 				new_game();
+			} else if(serial_input == 's' || serial_input == 'S') {
+				//save the game state
+				save_game();
+			} else if(serial_input == 'o' || serial_input == 'O') {
+				load_game();
 			}
 		}
 		// else - invalid input or we're part way through an escape sequence -
@@ -316,8 +327,6 @@ void play_game(void) {
 					break;	// GAME OVER
 				}
 			}
-			//update terminal display of game
-			fast_terminal_draw(0, 16);
 			last_drop_time = get_clock_ticks();
 		}
 	}

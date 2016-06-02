@@ -96,14 +96,13 @@ void display_score(uint32_t score){
 
 
 
-void terminal_draw(MatrixData displayMatrix, int start, int numRows) {
+void terminal_draw(MatrixData displayMatrix) {
+	static char outputDisplay[100];
 	reverse_video();
 	//memory allocation SHOULD BE MADE LOWER LATER ON
 	//THIS IS VERY VERY IMPORTANT TO FUTURE CALLUM
 	//WHO WILL READ THIS THE NIGHT BEFORE IT'S DUE
-	char output[700];
-	//initialise string
-	strcpy(output,"");
+	
 	//move to top left corner
 	move_cursor(4, 6);
 	//color info strings
@@ -111,7 +110,10 @@ void terminal_draw(MatrixData displayMatrix, int start, int numRows) {
 	char *prev_code;
 	prev_code = "";
 	//loop through current display matrix
-	for (int i = start; i < numRows; i++) {
+	for (int i = 0; i < 16; i++) {
+		move_cursor(4,6+i);
+		//initialise string
+		strcpy(outputDisplay,"");
 		for (int j = 0; j < BOARD_WIDTH; j++) {
 			//convert colours
 			switch (displayMatrix[i][j]) {
@@ -145,23 +147,22 @@ void terminal_draw(MatrixData displayMatrix, int start, int numRows) {
 			if (prev_code != color_code) {
 				//add hash and colour code to string
 				//if different
-				strcat(output,"\x1b[");
-				strcat(output,color_code);
-				strcat(output,"m ");
+				strcat(outputDisplay,"\x1b[");
+				strcat(outputDisplay,color_code);
+				strcat(outputDisplay,"m ");
 				prev_code = color_code;
 			} else {
 				//colour is the same as the block before
 				//no need to send colour info
-				strcat(output, " ");
+				strcat(outputDisplay, " ");
 			}
+			//output			
 		}
-		//add new line string and move cursor
-		strcat(output,"\n");
-		strcat(output,"\033[3C");
+		printf("%s",outputDisplay);
 	}
-	//output
-	printf("%s",output);
 	normal_display_mode();
+	
+	
 }
 
 void draw_game_window(void) {

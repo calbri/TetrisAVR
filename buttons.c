@@ -64,7 +64,7 @@ int8_t button_pushed(void) {
 		/*for(uint8_t i = 1; i < queue_length; i++) {
 			button_queue[i-1] = button_queue[i];
 		}
-		queue_length--; */
+		queue_length--;*/ 
 		
 		if(interrupts_were_enabled) {
 			// Turn them back on again
@@ -101,10 +101,7 @@ ISR(PCINT1_vect) {
 					break;
 				}
 			} else if (!(button_state & (1<<pin)) && (last_button_state & (1<<pin))) {
-				for(uint8_t i = 1; i < queue_length; i++) {
-					button_queue[i-1] = button_queue[i];
-				}
-				queue_length--;
+				queue_length = 0;
 			}
 		}
 	}

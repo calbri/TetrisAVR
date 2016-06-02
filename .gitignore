@@ -38,3 +38,5 @@ Debug/
 ASF/
 config/
 asf.h
+
+*.eep
