@@ -49,6 +49,8 @@ uint8_t attempt_move(int8_t direction);
  */
 uint8_t attempt_drop_block_one_row(void);
 
+uint8_t attempt_drop_ghost_one_row(void);
+
 /*
  * Attempt rotation (clockwise) of the current block on the board. 
  * Returns 0 on failure, 1 on success. 
@@ -66,4 +68,7 @@ void fast_terminal_draw(void);
 
 void load_game(void);
 void save_game(void);
+
+void spawn_ghost_block(void);
+void remove_ghost_block(void);
 

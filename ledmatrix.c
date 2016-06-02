@@ -103,3 +103,13 @@ void set_matrix_row_to_colour(MatrixRow matrix_row, PixelColour colour) {
 		matrix_row[column] = colour;
 	}
 }
+
+void flash_red(void) {
+	for (uint8_t x = 0; x < 16; x++) {
+		for (uint8_t y = 0; y < 8; y++) {
+			(void)spi_send_byte(CMD_UPDATE_PIXEL);
+			(void)spi_send_byte( ((y & 0x07)<<4) | (x & 0x0F));
+			(void)spi_send_byte(0xFF);
+		}
+	}
+}

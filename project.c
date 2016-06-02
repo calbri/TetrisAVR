@@ -100,6 +100,18 @@ void splash_screen(void) {
 	printf_P(PSTR("CSSE2010/7201 Tetris Project by Ben Gattas and Callum Bryson"));	
 	set_display_attribute(FG_WHITE);	// Return to default colour (White)
 	
+	move_cursor(17,7);
+	printf_P(PSTR("High Scores: "));
+	for (uint8_t i = 0; i < 5; i++) {
+		move_cursor(17, 8+i);
+		printf_P(PSTR("%10d"),get_eeprom_scores()[i]);
+		printf_P(PSTR(" "));
+		for (uint8_t j =0; j < 3; j++) {
+			char initialCharacter = get_eeprom_initial(i)[j];
+			printf("%c",initialCharacter);
+		}
+	}
+	
 	// Output the scrolling message to the LED matrix
 	// and wait for a push button to be pushed.
 	ledmatrix_clear();
@@ -317,7 +329,12 @@ void play_game(void) {
 		// do nothing
 		
 		// Check for timer related events here
-		int num_ticks = 600 - (get_row_count()*5);
+		uint16_t num_ticks = 600;
+		if (get_row_count() < 30) {
+			num_ticks = 600 - (get_row_count()*20);
+		} else {
+			num_ticks = 20;
+		}
 		if(get_clock_ticks() >= last_drop_time + num_ticks) {
 			// 600ms (0.6 second) has passed since the last time we dropped
 			// a block, so drop it now.
@@ -344,11 +361,9 @@ void handle_game_over() {
 	}
 	move_cursor(17,15);
 	printf_P(PSTR("HIGH SCORE: %d"), get_high_score());
-	move_cursor(17,16);
-	printf_P(PSTR("Press a button to start again"));
-	int new_best_score = 0;
+	uint8_t new_best_score = 0;
 	//check for new high score
-	int8_t index = -1;
+	uint8_t index;
 	for (uint8_t j = 0; j<5; j++) {
 		if (get_score() > get_eeprom_scores()[j]) {
 			new_best_score = 1;
@@ -356,46 +371,60 @@ void handle_game_over() {
 			break;
 		}
 	}
-	if (serial_input_available()) {
-		if (new_best_score == 1) {
-
-			//input a new best score
-			move_cursor(17,17);
-			printf_P(PSTR("Enter initials: "));
-			show_cursor();
-			static char initials[3];
-			char input = fgetc(stdin);
-			printf("%c", input);
-			initials[0] = input;
-			input = fgetc(stdin);
-			printf("%c", input);
-			initials[1] = input;
-			input = fgetc(stdin);
-			printf("%c", input);
-			initials[2] = input;
-			hide_cursor();
-			for (uint8_t j = 4; j > index; j--) {
-				store_eeprom_score(get_eeprom_scores()[j-1],j);
-				store_eeprom_initials(get_eeprom_initial(j-1),j);
+	if (new_best_score == 1) {
+		//input a new best score
+		move_cursor(17,17);
+		printf_P(PSTR("Enter initials: "));
+		show_cursor();
+		static char initials[3];
+		uint8_t initial_num = 0;
+		uint32_t time_since_wait = get_clock_ticks();
+		while (1) {
+			if (serial_input_available()) {
+				char input = fgetc(stdin);
+				initials[initial_num] = input;
+				printf("%c", input);
+				initial_num++;
 			}
-			store_eeprom_initials(initials, index);
-			store_eeprom_score(get_score(), index);
+			if (initial_num > 2) {
+				for (uint8_t j = 4; j > index; j--) {
+					store_eeprom_score(get_eeprom_scores()[j-1],j);
+					store_eeprom_initials(get_eeprom_initial(j-1),j);
+				}
+				store_eeprom_initials(initials, index);
+				store_eeprom_score(get_score(), index);
+				break;
+			}
+			if (get_clock_ticks() > time_since_wait + 10000) {
+				break;
+			}
 		}
-		move_cursor(17,18);
-		printf_P(PSTR("High Scores: "));
-		move_cursor(17,19);
-		for (uint8_t i = 0; i < 5; i++) {
-			move_cursor(17, 19+i);
-			printf_P(PSTR("%10d"),get_eeprom_scores()[i]);
-			printf_P(PSTR(" "));
-			for (uint8_t j =0; j < 3; j++) {
-				char initialCharacter = get_eeprom_initial(i)[j];
-				printf("%c",initialCharacter);
-			}
+		hide_cursor();
 		
+	}
+	move_cursor(17,18);
+	printf_P(PSTR("High Scores: "));
+	move_cursor(17,19);
+	for (uint8_t i = 0; i < 5; i++) {
+		move_cursor(17, 19+i);
+		printf_P(PSTR("%10d"),get_eeprom_scores()[i]);
+		printf_P(PSTR(" "));
+		for (uint8_t j =0; j < 3; j++) {
+			char initialCharacter = get_eeprom_initial(i)[j];
+			printf("%c",initialCharacter);
 		}
+	move_cursor(17,17);
+	printf_P(PSTR("Press a button to start again"));
+		
 	}
 	while(button_pushed() == -1) {
+		if (serial_input_available()) {
+			char serial_input = fgetc(stdin);
+			if (serial_input == 'n' || serial_input == 'N') {
+				break;
+			}
+
+		}
 		; // wait until a button has been pushed
 	}
 	

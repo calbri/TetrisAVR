@@ -43,4 +43,6 @@ void copy_matrix_row(MatrixRow from, MatrixRow to);
 void set_matrix_column_to_colour(MatrixColumn matrix_column, PixelColour colour);
 void set_matrix_row_to_colour(MatrixRow matrix_row, PixelColour colour);
 
+void flash_red(void);
+
 #endif /* LEDMATRIX_H_ */
