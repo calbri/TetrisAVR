@@ -100,6 +100,18 @@ void splash_screen(void) {
 	printf_P(PSTR("CSSE2010/7201 Tetris Project by Ben Gattas and Callum Bryson"));	
 	set_display_attribute(FG_WHITE);	// Return to default colour (White)
 	
+	move_cursor(17,7);
+	printf_P(PSTR("High Scores: "));
+	for (uint8_t i = 0; i < 5; i++) {
+		move_cursor(17, 8+i);
+		printf_P(PSTR("%10d"),get_eeprom_scores()[i]);
+		printf_P(PSTR(" "));
+		for (uint8_t j =0; j < 3; j++) {
+			char initialCharacter = get_eeprom_initial(i)[j];
+			printf("%c",initialCharacter);
+		}
+	}
+	
 	// Output the scrolling message to the LED matrix
 	// and wait for a push button to be pushed.
 	ledmatrix_clear();
@@ -356,30 +368,28 @@ void handle_game_over() {
 			break;
 		}
 	}
-	clear_serial_input_buffer();
-		if (new_best_score == 1) {
-			//input a new best score
-			move_cursor(17,17);
-			printf_P(PSTR("Enter initials: "));
-			show_cursor();
-			static char initials[3];
-			char input = fgetc(stdin);
-			printf("%c", input);
-			initials[0] = input;
-			input = fgetc(stdin);
-			printf("%c", input);
-			initials[1] = input;
-			input = fgetc(stdin);
-			printf("%c", input);
-			initials[2] = input;
-			hide_cursor();
-			for (uint8_t j = 4; j > index; j--) {
-				store_eeprom_score(get_eeprom_scores()[j-1],j);
-				store_eeprom_initials(get_eeprom_initial(j-1),j);
-			}
-			store_eeprom_initials(initials, index);
-			store_eeprom_score(get_score(), index);
+	if (new_best_score == 1) {
+		//input a new best score
+		move_cursor(17,17);
+		printf_P(PSTR("Enter initials: "));
+		show_cursor();
+		static char initials[3];
+		char input = fgetc(stdin);
+		printf("%c", input);
+		initials[0] = input;
+		input = fgetc(stdin);
+		printf("%c", input);
+		initials[1] = input;
+		input = fgetc(stdin);
+		printf("%c", input);
+		initials[2] = input;
+		hide_cursor();
+		for (uint8_t j = 4; j > index; j--) {
+			store_eeprom_score(get_eeprom_scores()[j-1],j);
+			store_eeprom_initials(get_eeprom_initial(j-1),j);
 		}
+		store_eeprom_initials(initials, index);
+		store_eeprom_score(get_score(), index);
 	}
 	move_cursor(17,18);
 	printf_P(PSTR("High Scores: "));
