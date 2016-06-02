@@ -479,6 +479,7 @@ void fast_terminal_draw(void) {
 }
 
 void save_game(void) {
+	remove_ghost_block();
 	//save state
 	write_eeprom_save_state();
 	//board
