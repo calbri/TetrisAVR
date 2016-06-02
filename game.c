@@ -16,6 +16,7 @@
 #include "ledmatrix.h"
 #include "terminalio.h"
 #include "timer2.h"
+#include <avr/io.h>
 
 /*
  * Function prototypes.
@@ -56,12 +57,19 @@ FallingBlock current_block;	// Current dropping block - there will
 							// always be one if the game is being played
 							
 FallingBlock next_block;
+FallingBlock ghost_block;
 uint8_t cleared_row_count;
+uint8_t ghost;
 /* 
  * Initialise board - all the row data will be empty (0) and we
  * create an initial random block and add it to the top of the board.
  */
 void init_game(void) {	
+	//set data direction for ghost toggle
+	DDRD |= (0 << 2);
+	
+	//determine whether ghost is on or off
+	ghost = ((PIND & (1<<2)) >> 2);
 	// Clear the LED matrix
 	ledmatrix_clear();
 
@@ -159,7 +167,8 @@ uint8_t attempt_move(int8_t direction) {
 	update_rows_on_display(current_block.row, current_block.height);
 	
 	//update terminal display of game
-	
+	remove_ghost_block();
+	spawn_ghost_block();
 	return 1;
 }
 
@@ -197,6 +206,33 @@ uint8_t attempt_drop_block_one_row(void) {
 	// Update the rows which are affected - starting from the row before
 	// where the current block is.
 	update_rows_on_display(current_block.row - 1, current_block.height + 1);
+	
+	// Move was successful - indicate so
+	return 1;
+}
+
+uint8_t attempt_drop_ghost_one_row(void) {
+	/*
+	 * Check if the block has reached the bottom of the board.
+	 * If so, do nothing and return false
+	 */
+	if(ghost_block.row + ghost_block.height >= BOARD_ROWS) {
+		return 0;
+	}
+	
+	/* Create a temporary block as a copy of the current block.
+	 * Move it down 1 row and check whether it collides with
+	 * any fixed blocks.
+	 */
+	FallingBlock tmp_block = ghost_block;
+	tmp_block.row += 1;
+	if(block_collides(tmp_block)) {
+		// Block will collide if moved down - so we can't move it
+		return 0;
+	}
+	
+	// Move would succeed - so we make it happen
+	ghost_block = tmp_block;
 	
 	// Move was successful - indicate so
 	return 1;
@@ -242,6 +278,8 @@ uint8_t attempt_rotation(void) {
 	add_current_block_to_board_display();
 
 	update_rows_on_display(current_block.row, rows_affected);
+	remove_ghost_block();
+	spawn_ghost_block();
 	
 	// Rotation has happened - return true
 	return 1;
@@ -369,6 +407,8 @@ static uint8_t add_random_block(void) {
 	// Update the display for the rows which are affected
 	update_rows_on_display(current_block.row, current_block.height);
 	
+	spawn_ghost_block();
+	
 	// The addition succeeded - return true
 	return 1;
 }
@@ -477,4 +517,51 @@ void load_game(void) {
 			board[i] = rowToLoad;
 		}
 	}
+}
+
+void spawn_ghost_block() {
+	if (ghost == 1) {
+		ghost_block = current_block;
+		ghost_block.colour = 0x11;
+	
+		while(attempt_drop_ghost_one_row()) {
+			;
+		}
+	
+		//rest of method
+		for(uint8_t row = 0; row < ghost_block.height; row++) {
+			uint8_t board_row = row + ghost_block.row;
+			for(uint8_t col = 0; col < ghost_block.width; col++) {
+				if((ghost_block.pattern[row] & (1 << col))) {
+					// This position in the block is occupied - add it to
+					// the board display
+					uint8_t board_column = col + ghost_block.column;
+					uint8_t display_column = BOARD_WIDTH - board_column - 1;
+					board_display[board_row][display_column] = ghost_block.colour;
+				}
+			}
+		}
+	
+		update_rows_on_display(0,16);
+	}
+	
+	
+}
+
+void remove_ghost_block(void) {
+	if (ghost == 1) {
+		for(uint8_t row = 0; row < ghost_block.height; row++) {
+			uint8_t board_row = row + ghost_block.row;
+			for(uint8_t col = 0; col < ghost_block.width; col++) {
+				if((ghost_block.pattern[row] & (1 << col))) {
+					// This position in the block is occupied - add it to
+					// the board display
+					uint8_t board_column = col + ghost_block.column;
+					uint8_t display_column = BOARD_WIDTH - board_column - 1;
+					board_display[board_row][display_column] = 0;
+				}
+			}
+		}
+	}
+	
 }

@@ -136,10 +136,13 @@ void terminal_draw(MatrixData displayMatrix) {
 					color_code = "35";
 					break;
 				case COLOUR_LIGHT_YELLOW :
-					color_code = "36";
+					color_code = "35";
 					break;
 				case COLOUR_LIGHT_GREEN :
 					color_code = "37";
+					break;
+				case 0x11 :
+					color_code = "36";
 					break;
 				default:
 					color_code = "30";

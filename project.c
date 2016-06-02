@@ -329,7 +329,12 @@ void play_game(void) {
 		// do nothing
 		
 		// Check for timer related events here
-		int num_ticks = 600 - (get_row_count()*5);
+		uint16_t num_ticks = 600;
+		if (get_row_count() < 30) {
+			num_ticks = 600 - (get_row_count()*20);
+		} else {
+			num_ticks = 20;
+		}
 		if(get_clock_ticks() >= last_drop_time + num_ticks) {
 			// 600ms (0.6 second) has passed since the last time we dropped
 			// a block, so drop it now.
@@ -356,8 +361,6 @@ void handle_game_over() {
 	}
 	move_cursor(17,15);
 	printf_P(PSTR("HIGH SCORE: %d"), get_high_score());
-	move_cursor(17,16);
-	printf_P(PSTR("Press a button to start again"));
 	uint8_t new_best_score = 0;
 	//check for new high score
 	uint8_t index;
@@ -374,22 +377,30 @@ void handle_game_over() {
 		printf_P(PSTR("Enter initials: "));
 		show_cursor();
 		static char initials[3];
-		char input = fgetc(stdin);
-		printf("%c", input);
-		initials[0] = input;
-		input = fgetc(stdin);
-		printf("%c", input);
-		initials[1] = input;
-		input = fgetc(stdin);
-		printf("%c", input);
-		initials[2] = input;
-		hide_cursor();
-		for (uint8_t j = 4; j > index; j--) {
-			store_eeprom_score(get_eeprom_scores()[j-1],j);
-			store_eeprom_initials(get_eeprom_initial(j-1),j);
+		uint8_t initial_num = 0;
+		uint32_t time_since_wait = get_clock_ticks();
+		while (1) {
+			if (serial_input_available()) {
+				char input = fgetc(stdin);
+				initials[initial_num] = input;
+				printf("%c", input);
+				initial_num++;
+			}
+			if (initial_num > 2) {
+				for (uint8_t j = 4; j > index; j--) {
+					store_eeprom_score(get_eeprom_scores()[j-1],j);
+					store_eeprom_initials(get_eeprom_initial(j-1),j);
+				}
+				store_eeprom_initials(initials, index);
+				store_eeprom_score(get_score(), index);
+				break;
+			}
+			if (get_clock_ticks() > time_since_wait + 10000) {
+				break;
+			}
 		}
-		store_eeprom_initials(initials, index);
-		store_eeprom_score(get_score(), index);
+		hide_cursor();
+		
 	}
 	move_cursor(17,18);
 	printf_P(PSTR("High Scores: "));
@@ -402,9 +413,18 @@ void handle_game_over() {
 			char initialCharacter = get_eeprom_initial(i)[j];
 			printf("%c",initialCharacter);
 		}
+	move_cursor(17,17);
+	printf_P(PSTR("Press a button to start again"));
 		
 	}
 	while(button_pushed() == -1) {
+		if (serial_input_available()) {
+			char serial_input = fgetc(stdin);
+			if (serial_input == 'n' || serial_input == 'N') {
+				break;
+			}
+
+		}
 		; // wait until a button has been pushed
 	}
 	
