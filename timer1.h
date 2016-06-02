@@ -20,4 +20,6 @@ void set_music_speed(uint32_t new_speed);
 
 uint32_t get_music_speed(void);
 
+void play_game_tone(uint8_t tone_number);
+
 #endif

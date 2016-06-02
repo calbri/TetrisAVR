@@ -62,11 +62,14 @@ uint32_t note_frequencies[11] = {2408, 2273, 2025, 1911, 1703, 1517, 1432, 1276,
 //a variable to keep track of how far into the piece the buzzer is
 uint32_t numTicks;
 
+//a variable to track whether a piece, or a game buzz tone, is playing
+uint8_t game_tone_is_playing;
+
 //current note in the piece (0 to 255)
 uint8_t current_note;
 
 //current speed
-uint32_t speed;
+uint32_t speed_threshold;
 
 //buzzer_toggle
 uint8_t toggle;
@@ -100,7 +103,8 @@ void init_timer1(void) {
 	current_note = 0;
 	toggle = 0;
 	numTicks = 0;
-	speed = 125000;
+	game_tone_is_playing = 0;
+	speed_threshold = 250000;	//125000 is medium pace, 50-60000 is very fast
 
 	/* Clear the timer */
 	TCNT1 = 0;
@@ -133,42 +137,59 @@ void init_timer1(void) {
 ISR(TIMER1_COMPA_vect) {
 	numTicks += OCR1A;
 	uint8_t mute = ((PINA & (1<<1)) >> 1);
-	if (numTicks > speed) {
-		numTicks = 0;
-		if (current_note==255){
-			current_note = 0;
-		} else {
-			current_note++;
+	if (game_tone_is_playing == 0) {
+		if (numTicks > speed_threshold) {
+			numTicks = 0;
+			if (current_note==255){
+				current_note = 0;
+			} else {
+				current_note++;
+			}
+			OCR1A = 0.1*(note_frequencies[tetris_theme[current_note]]-1);
 		}
-		OCR1A = 0.1*(note_frequencies[tetris_theme[current_note]]-1);
-	}
-	//if the note is a 10 make it silent (see tetris_theme definition)
-	if (tetris_theme[current_note]==10) {
-		mute = 1;
+		//if the note is a 10 make it silent (see tetris_theme definition)
+		if (tetris_theme[current_note]==10) {
+			mute = 1;
+		}
+	} else {
+		switch(game_tone_is_playing) {
+			case 1 :
+				//play a high A
+				OCR1A = 0.1*(note_frequencies[9]-1);
+			case 2 :
+				//play a high F
+				OCR1A = 0.1*(note_frequencies[7]-1);
+		}
+		//play the tone for four times the normal note length above
+		if (numTicks > speed_threshold) {
+			numTicks = 0;
+			game_tone_is_playing = 0;
+		}
 	}
 	toggle = (1 ^ toggle);
 	//check if mute is enabled
 	if (mute==1) {
 		//output a 0
-		PORTA = (0<<2);
+		PORTA &= (11111011);
 	} else {
 		if (toggle) {
-			PORTA = (1<<2);
+			PORTA |= (1<<2);
 		} else {
-			PORTA = (0<<2);
+			PORTA &= (11111011);
 		}
-	}
+	}	
+	
 }
 
-void play_completed_row_tone(void) {
-	uint8_t mute = ((PINA & (1<<1)) >> 1);
+void play_game_tone(uint8_t tone_number) {
+	game_tone_is_playing = tone_number;
 	
 }
 
 void set_music_speed(uint32_t new_speed) {
-	speed = new_speed;
+	speed_threshold = new_speed;
 }
 
 uint32_t get_music_speed(void) {
-	return speed;
+	return speed_threshold;
 }
