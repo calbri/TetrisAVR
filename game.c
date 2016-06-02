@@ -16,11 +16,8 @@
 #include "ledmatrix.h"
 #include "terminalio.h"
 #include "timer2.h"
-<<<<<<< HEAD
 #include "timer1.h"
-=======
 #include <avr/io.h>
->>>>>>> origin/master
 
 /*
  * Function prototypes.
@@ -347,18 +344,8 @@ static void check_for_completed_rows(int scoring_combo) {
 		display_score(get_score());
 		//if a TETRIS is made, flash the screen
 		if (scoring_combo == 4) {
-<<<<<<< HEAD
 			play_game_tone(1);
-			MatrixColumn TETRIS_display[BOARD_ROWS];
-			for(uint8_t row=0; row < BOARD_ROWS; row++) {
-				for(uint8_t col=0; col < MATRIX_NUM_ROWS; col++) {
-					TETRIS_display[row][col] = 0x0F;
-				}
-			}
-			ledmatrix_update_all(TETRIS_display);
-=======
 			flash_red();
->>>>>>> origin/master
 			ledmatrix_update_all(board_display);
 		}
 	}
