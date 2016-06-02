@@ -349,6 +349,7 @@ static void check_for_completed_rows(int scoring_combo) {
 		display_score(get_score());
 		//if a TETRIS is made, flash the screen
 		if (scoring_combo == 4) {
+<<<<<<< HEAD
 			play_game_tone(2);
 			MatrixColumn TETRIS_display[BOARD_ROWS];
 			for(uint8_t row=0; row < BOARD_ROWS; row++) {
@@ -358,6 +359,10 @@ static void check_for_completed_rows(int scoring_combo) {
 			}
 			ledmatrix_update_all(TETRIS_display);
 			flash_red();
+=======
+			play_game_tone(1);
+			flash();
+>>>>>>> origin/master
 			ledmatrix_update_all(board_display);
 		}
 	}
@@ -493,6 +498,7 @@ void fast_terminal_draw(void) {
 }
 
 void save_game(void) {
+	remove_ghost_block();
 	//save state
 	write_eeprom_save_state();
 	//board
