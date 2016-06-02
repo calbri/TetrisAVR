@@ -345,7 +345,7 @@ static void check_for_completed_rows(int scoring_combo) {
 		//if a TETRIS is made, flash the screen
 		if (scoring_combo == 4) {
 			play_game_tone(1);
-			flash_red();
+			flash();
 			ledmatrix_update_all(board_display);
 		}
 	}

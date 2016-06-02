@@ -101,10 +101,10 @@ void set_matrix_column_to_colour(MatrixColumn matrix_column, PixelColour colour)
 void set_matrix_row_to_colour(MatrixRow matrix_row, PixelColour colour) {
 	for(uint8_t column = 0; column < MATRIX_NUM_COLUMNS; column++) {
 		matrix_row[column] = colour;
-	}
+}
 }
 
-void flash_red(void) {
+void flash(void) {
 	for (uint8_t x = 0; x < 16; x++) {
 		for (uint8_t y = 0; y < 8; y++) {
 			(void)spi_send_byte(CMD_UPDATE_PIXEL);
