@@ -16,11 +16,8 @@
 #include "ledmatrix.h"
 #include "terminalio.h"
 #include "timer2.h"
-<<<<<<< HEAD
 #include "timer1.h"
-=======
 #include <avr/io.h>
->>>>>>> origin/master
 
 /*
  * Function prototypes.
@@ -339,16 +336,20 @@ static void check_for_completed_rows(int scoring_combo) {
 	if (row_complete == 1) {
 		cleared_row_count++;
 		set_row_count(cleared_row_count);
+		play_game_tone(1);
+		if (get_row_count() < 30) {
+			set_music_speed(250000 - (get_row_count()*5000));
+		} else {
+			set_music_speed(100000);
+		}		
 		check_for_completed_rows(scoring_combo);
-		play_game_tone(2);
 	} else {
 		//end of the recursion chain, update the score  (n^2 * 100)
 		add_to_score(scoring_combo*scoring_combo*100);
 		display_score(get_score());
 		//if a TETRIS is made, flash the screen
 		if (scoring_combo == 4) {
-<<<<<<< HEAD
-			play_game_tone(1);
+			play_game_tone(2);
 			MatrixColumn TETRIS_display[BOARD_ROWS];
 			for(uint8_t row=0; row < BOARD_ROWS; row++) {
 				for(uint8_t col=0; col < MATRIX_NUM_ROWS; col++) {
@@ -356,12 +357,12 @@ static void check_for_completed_rows(int scoring_combo) {
 				}
 			}
 			ledmatrix_update_all(TETRIS_display);
-=======
 			flash_red();
->>>>>>> origin/master
 			ledmatrix_update_all(board_display);
 		}
 	}
+			
+			
 }
 	
 	/* Suggested approach is to iterate over all the rows (0 to
@@ -557,7 +558,6 @@ void spawn_ghost_block() {
 				}
 			}
 		}
-	
 		update_rows_on_display(0,16);
 	}
 	

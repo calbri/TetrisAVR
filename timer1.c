@@ -160,11 +160,11 @@ ISR(TIMER1_COMPA_vect) {
 				//play a high F
 				OCR1A = 0.1*(note_frequencies[7]-1);
 		}
-		//play the tone for four times the normal note length above
+		//play the tone the normal note length above
 		if (numTicks > speed_threshold) {
 			numTicks = 0;
-			game_tone_is_playing = 0;
 		}
+		game_tone_is_playing = 0;
 	}
 	toggle = (1 ^ toggle);
 	//check if mute is enabled
@@ -182,12 +182,21 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 void play_game_tone(uint8_t tone_number) {
+	//uint8_t interrupts_were_on = bit_is_set(SREG, SREG_I);
+	//cli();
 	game_tone_is_playing = tone_number;
-	
+	//if(interrupts_were_on) {
+	//	sei();
+	//}
 }
 
 void set_music_speed(uint32_t new_speed) {
+	//uint8_t interrupts_were_on = bit_is_set(SREG, SREG_I);
+	//cli();	
 	speed_threshold = new_speed;
+	//if(interrupts_were_on) {
+	//	sei();
+	//}
 }
 
 uint32_t get_music_speed(void) {

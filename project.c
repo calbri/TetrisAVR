@@ -38,9 +38,6 @@ void handle_new_lap(void);
 // ASCII code for Escape character
 #define ESCAPE_CHAR 27
 
-//for acceleration
-int ticker_interval = 600;
-
 /////////////////////////////// main //////////////////////////////////
 int main(void) {
 	// Setup hardware and call backs. This will turn on 
@@ -335,6 +332,8 @@ void play_game(void) {
 		} else {
 			num_ticks = 20;
 		}
+		
+
 		if(get_clock_ticks() >= last_drop_time + num_ticks) {
 			// 600ms (0.6 second) has passed since the last time we dropped
 			// a block, so drop it now.
