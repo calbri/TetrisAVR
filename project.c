@@ -346,9 +346,9 @@ void handle_game_over() {
 	printf_P(PSTR("HIGH SCORE: %d"), get_high_score());
 	move_cursor(17,16);
 	printf_P(PSTR("Press a button to start again"));
-	int new_best_score = 0;
+	uint8_t new_best_score = 0;
 	//check for new high score
-	int8_t index = -1;
+	uint8_t index;
 	for (uint8_t j = 0; j<5; j++) {
 		if (get_score() > get_eeprom_scores()[j]) {
 			new_best_score = 1;
@@ -356,9 +356,8 @@ void handle_game_over() {
 			break;
 		}
 	}
-	if (serial_input_available()) {
+	clear_serial_input_buffer();
 		if (new_best_score == 1) {
-
 			//input a new best score
 			move_cursor(17,17);
 			printf_P(PSTR("Enter initials: "));
@@ -381,19 +380,19 @@ void handle_game_over() {
 			store_eeprom_initials(initials, index);
 			store_eeprom_score(get_score(), index);
 		}
-		move_cursor(17,18);
-		printf_P(PSTR("High Scores: "));
-		move_cursor(17,19);
-		for (uint8_t i = 0; i < 5; i++) {
-			move_cursor(17, 19+i);
-			printf_P(PSTR("%10d"),get_eeprom_scores()[i]);
-			printf_P(PSTR(" "));
-			for (uint8_t j =0; j < 3; j++) {
-				char initialCharacter = get_eeprom_initial(i)[j];
-				printf("%c",initialCharacter);
-			}
-		
+	}
+	move_cursor(17,18);
+	printf_P(PSTR("High Scores: "));
+	move_cursor(17,19);
+	for (uint8_t i = 0; i < 5; i++) {
+		move_cursor(17, 19+i);
+		printf_P(PSTR("%10d"),get_eeprom_scores()[i]);
+		printf_P(PSTR(" "));
+		for (uint8_t j =0; j < 3; j++) {
+			char initialCharacter = get_eeprom_initial(i)[j];
+			printf("%c",initialCharacter);
 		}
+		
 	}
 	while(button_pushed() == -1) {
 		; // wait until a button has been pushed
