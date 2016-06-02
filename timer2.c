@@ -45,7 +45,7 @@ void init_timer2(void) {
 	** bit of port A be output bits.
 	*/
 	DDRC = 0xFF;
-	DDRA = 0x01;
+	DDRA |= 0x01;
 	
 	/* Reset clock tick count. L indicates a long (32 bit) 
 	 * constant. 
