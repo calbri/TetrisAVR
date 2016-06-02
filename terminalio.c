@@ -99,10 +99,7 @@ void display_score(uint32_t score){
 void terminal_draw(MatrixData displayMatrix) {
 	static char outputDisplay[100];
 	reverse_video();
-	//memory allocation SHOULD BE MADE LOWER LATER ON
-	//THIS IS VERY VERY IMPORTANT TO FUTURE CALLUM
-	//WHO WILL READ THIS THE NIGHT BEFORE IT'S DUE
-	
+
 	//move to top left corner
 	move_cursor(4, 6);
 	//color info strings
