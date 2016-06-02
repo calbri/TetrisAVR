@@ -62,4 +62,8 @@ uint8_t attempt_rotation(void);
  */
 uint8_t fix_block_to_board_and_add_new_block(void);
 
-void fast_terminal_draw(int start, int numRows);
+void fast_terminal_draw(void);
+
+void load_game(void);
+void save_game(void);
+

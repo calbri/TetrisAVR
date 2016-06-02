@@ -72,7 +72,7 @@ void init_game(void) {
 		}
 	}
 	ledmatrix_update_all(board_display);
-	fast_terminal_draw(0, 16);
+	fast_terminal_draw();
 	
 	//initialise the cleared row count on the seven_seg display (code for display in timer1.c)
 	cleared_row_count = 0;
@@ -155,7 +155,6 @@ uint8_t attempt_move(int8_t direction) {
 	current_block = tmp_block;
 	add_current_block_to_board_display();
 	
-	fast_terminal_draw(0, current_block.row + current_block.height);
 	// Update the rows which are affected
 	update_rows_on_display(current_block.row, current_block.height);
 	
@@ -243,9 +242,6 @@ uint8_t attempt_rotation(void) {
 	add_current_block_to_board_display();
 
 	update_rows_on_display(current_block.row, rows_affected);
-	
-	//update terminal display of game
-	fast_terminal_draw(0, current_block.row + rows_affected);
 	
 	// Rotation has happened - return true
 	return 1;
@@ -441,6 +437,49 @@ static void add_current_block_to_board_display(void) {
 	}
 }
 
-void fast_terminal_draw(int start, int numRows) {
-	terminal_draw(board_display, start, numRows);
+void fast_terminal_draw(void) {
+	terminal_draw(board_display);
+}
+
+void save_game(void) {
+	//save state
+	write_eeprom_save_state();
+	//board
+	for (uint8_t i = 0; i < 16; i++) {
+		uint8_t rowToStore = board[i];
+		write_eeprom_board(rowToStore, i);
+	}
+	//board display
+	write_eeprom_board_display(board_display);
+	//current block
+	write_eeprom_current_block(current_block);
+	//next block
+	write_eeprom_next_block(next_block);
+	//num rows
+	write_eeprom_rows_cleared(cleared_row_count);
+}
+
+void load_game(void) {
+	if (get_eeprom_save_state() == 1) {
+		//display
+		for(uint8_t row=0; row < BOARD_ROWS; row++) {
+			for(uint8_t col=0; col < MATRIX_NUM_ROWS; col++) {
+				board_display[row][col] = get_eeprom_board_display()[row][col];
+			}
+		}
+		//current block
+		current_block = get_eeprom_current_block();
+		//next block
+		next_block = get_eeprom_next_block();
+		//num rows
+		cleared_row_count = get_eeprom_rows_cleared();
+		//update game views
+		ledmatrix_update_all(board_display);
+		draw_next_block(next_block);
+		//board
+		for (uint8_t i = 0; i < 16; i++) {
+			uint8_t rowToLoad = get_eeprom_board(i);
+			board[i] = rowToLoad;
+		}
+	}
 }
