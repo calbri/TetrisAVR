@@ -45,6 +45,7 @@ void init_button_interrupts(void) {
 
 void empty_button_queue(void) {
 	queue_length = 0;
+	last_button_state = 0;
 }
 
 int8_t button_pushed(void) {

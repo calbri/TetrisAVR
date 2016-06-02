@@ -60,6 +60,7 @@ int main(void) {
 	while(1) {
 		//seed the random number generator
 		//multiply by 10 to get good spread
+		empty_button_queue();
 		srandom(get_clock_ticks()*10);
 		new_game();
 		play_game();
@@ -346,42 +347,44 @@ void handle_game_over() {
 			break;
 		}
 	}
-	if (new_best_score == 1) {
+	if (serial_input_available()) {
+		if (new_best_score == 1) {
 
-		//input a new best score
-		move_cursor(17,17);
-		printf_P(PSTR("Enter initials: "));
-		show_cursor();
-		static char initials[3];
-		char input = fgetc(stdin);
-		printf("%c", input);
-		initials[0] = input;
-		input = fgetc(stdin);
-		printf("%c", input);
-		initials[1] = input;
-		input = fgetc(stdin);
-		printf("%c", input);
-		initials[2] = input;
-		hide_cursor();
-		for (uint8_t j = 4; j > index; j--) {
-			store_eeprom_score(get_eeprom_scores()[j-1],j);
-			store_eeprom_initials(get_eeprom_initial(j-1),j);
+			//input a new best score
+			move_cursor(17,17);
+			printf_P(PSTR("Enter initials: "));
+			show_cursor();
+			static char initials[3];
+			char input = fgetc(stdin);
+			printf("%c", input);
+			initials[0] = input;
+			input = fgetc(stdin);
+			printf("%c", input);
+			initials[1] = input;
+			input = fgetc(stdin);
+			printf("%c", input);
+			initials[2] = input;
+			hide_cursor();
+			for (uint8_t j = 4; j > index; j--) {
+				store_eeprom_score(get_eeprom_scores()[j-1],j);
+				store_eeprom_initials(get_eeprom_initial(j-1),j);
+			}
+			store_eeprom_initials(initials, index);
+			store_eeprom_score(get_score(), index);
 		}
-		store_eeprom_initials(initials, index);
-		store_eeprom_score(get_score(), index);
-	}
-	move_cursor(17,18);
-	printf_P(PSTR("High Scores: "));
-	move_cursor(17,19);
-	for (uint8_t i = 0; i < 5; i++) {
-		move_cursor(17, 19+i);
-		printf_P(PSTR("%10d"),get_eeprom_scores()[i]);
-		printf_P(PSTR(" "));
-		for (uint8_t j =0; j < 3; j++) {
-			char initialCharacter = get_eeprom_initial(i)[j];
-			printf("%c",initialCharacter);
-		}
+		move_cursor(17,18);
+		printf_P(PSTR("High Scores: "));
+		move_cursor(17,19);
+		for (uint8_t i = 0; i < 5; i++) {
+			move_cursor(17, 19+i);
+			printf_P(PSTR("%10d"),get_eeprom_scores()[i]);
+			printf_P(PSTR(" "));
+			for (uint8_t j =0; j < 3; j++) {
+				char initialCharacter = get_eeprom_initial(i)[j];
+				printf("%c",initialCharacter);
+			}
 		
+		}
 	}
 	while(button_pushed() == -1) {
 		; // wait until a button has been pushed
