@@ -60,6 +60,9 @@ ________________________________________________________________________________
 //Let 1ms be 1000 in this array
 uint32_t note_frequencies[15] = {2408, 2273, 2025, 1911, 1703, 1517, 1432, 1276, 1204, 1136, 1000000,0,0,0,0};
 
+//game over theme
+uint32_t new_note_frequencies[15] = {3214,2863,2408,2272,2145,1911,1804,1703,1607,1517,1432,1276,1204,1073,1000000};
+
 //a variable to keep track of how far into the piece the buzzer is
 uint32_t numTicks;
 
@@ -67,7 +70,7 @@ uint32_t numTicks;
 volatile uint8_t game_tone_is_playing, silent_note;
 
 //current note in the piece (0 to 255)
-uint8_t current_note;
+uint8_t current_note, game_over;
 
 //current speed
 uint32_t speed_threshold;
@@ -87,6 +90,16 @@ uint8_t tetris_theme[256] =    {5,10,2,3,4,10,3,2,  1,10,1,3,5,10,4,3,   2,10,10
 								5,10,2,3,4,10,3,2,  1,10,1,3,5,10,4,3,   2,10,10,3,4,10,5,10,  3,10,1,10,1,1,2,3,
 								4,10,10,6,9,10,7,6, 5,10,10,3,5,10,4,3,  2,10,2,3,4,10,5,10,   3,10,1,10,1,10,10,10};
 
+uint8_t new_tetris_theme[256] = {14,14,8,8,10,10,11,11,   12,12,12,13,12,12,12,11,   11,11,11,10,11,11,11,10,	10,10,10,8,10,10,10,8,
+		8,8,8,6,5,5,5,8,		 12,12,12,13,12,12,12,11,   11,11,11,10,11,11,11,10,	10,10,10,8,10,10,10,8,
+		8,8,8,6,5,5,5,4,		 5,5,5,6,5,5,5,4,			4,4,4,3,4,4,4,5,			6,6,6,8,6,6,6,5,
+		5,5,5,4,5,5,5,6,		 8,8,8,7,8,8,8,9,		    11,11,11,10,12,12,12,10,	8,8,8,6,5,5,5,4,
+		2,0,1,5,2,2,2,2,		 14,14,14,14,14,14,14,14,	14,14,14,14,14,14,14,14,	14,14,14,14,14,14,14,14,
+		14,14,8,8,10,10,11,11,   12,12,12,13,12,12,12,11,   11,11,11,10,11,11,11,10,	10,10,10,8,10,10,10,8,
+		8,8,8,6,5,5,5,8,		 12,12,12,13,12,12,12,11,   11,11,11,10,11,11,11,10,	10,10,10,8,10,10,10,8,
+		8,8,8,6,5,5,5,4,		 5,5,5,6,5,5,5,4,			4,4,4,3,4,4,4,5,			5,5,4,4,2,2,14,14};
+
+
 /* Set up timer 0 to generate an interrupt every
  *	 (note_multipliers[current_note_multiplier])/1000 milliseconds. 
  * We will divide the clock by 8 (1MHz). Therefore an output compare value of 999 (1000-1) is 
@@ -104,8 +117,9 @@ void init_timer1(void) {
 	current_note = 0;
 	toggle = 0;
 	numTicks = 0;
+	game_over = 0;
 	game_tone_is_playing = 0;
-	speed_threshold = 200000;	//125000 is medium pace, 50-60000 is very fast
+	speed_threshold = 75000;	//125000 is medium pace, 50-60000 is very fast
 	silent_note = 10;
 
 	/* Clear the timer */
@@ -139,34 +153,50 @@ void init_timer1(void) {
 ISR(TIMER1_COMPA_vect) {
 	numTicks += OCR1A;
 	uint8_t mute = ((PINA & (1<<1)) >> 1);
-	if (game_tone_is_playing == 0) {
-		if (numTicks > (speed_threshold - (get_row_count()*10000))) {
+	if (game_over==0) {
+		if (game_tone_is_playing == 0) {
+			if (numTicks > (125000)) {
+				numTicks = 0;
+				if (current_note==255){
+					current_note = 0;
+					} else {
+					current_note++;
+				}
+				OCR1A = 0.1*(note_frequencies[tetris_theme[current_note]]-1);
+			}
+			//if the note is a 10 make it silent (see tetris_theme definition)
+			if (tetris_theme[current_note]==10) {
+				mute = 1;
+			}
+		} else {
+			switch(game_tone_is_playing) {
+				case 1 :
+					//play a high A
+					OCR1A = 0.1*(note_frequencies[9]-1);
+				case 2 :
+					//play a high F
+					OCR1A = 0.1*(note_frequencies[7]-1);
+				}
+			//play the tone the normal note length above
+			if (numTicks > (speed_threshold)) {
+				numTicks = 0;
+			}
+			game_tone_is_playing = 0;
+		}
+	} else {
+		if (numTicks > (200000)) {
 			numTicks = 0;
 			if (current_note==255){
 				current_note = 0;
-			} else {
+				} else {
 				current_note++;
 			}
-			OCR1A = 0.1*(note_frequencies[tetris_theme[current_note]]-1);
+			OCR1A = 0.1*(new_note_frequencies[new_tetris_theme[current_note]]-1);
 		}
-		//if the note is a 10 make it silent (see tetris_theme definition)
-		if (tetris_theme[current_note]==silent_note) {
+		//if the note is a 14 make it silent (see tetris_theme definition)
+		if (tetris_theme[current_note]==14) {
 			mute = 1;
 		}
-	} else {
-		switch(game_tone_is_playing) {
-			case 1 :
-				//play a high A
-				OCR1A = 0.1*(note_frequencies[9]-1);
-			case 2 :
-				//play a high F
-				OCR1A = 0.1*(note_frequencies[7]-1);
-		}
-		//play the tone the normal note length above
-		if (numTicks > (speed_threshold - (get_row_count()*10000))) {
-			numTicks = 0;
-		}
-		game_tone_is_playing = 0;
 	}
 	toggle = (1 ^ toggle);
 	//check if mute is enabled
@@ -193,30 +223,8 @@ void play_game_tone(uint8_t tone_number) {
 }
 
 void switch_to_game_over(void) {
-	uint8_t interrupts_were_on = bit_is_set(SREG, SREG_I);
-	cli();	
-	speed_threshold = 75000;
-	silent_note = 14;
-	
-	uint32_t new_note_frequencies[15] = {3214,2863,2408,2272,2145,1911,1804,1703,1607,1517,1432,1276,1204,1073,1000000};
-	for (int i = 0; i < 15; i++) {
-		note_frequencies[i] = new_note_frequencies[i];
-	}
-
-	uint8_t new_tetris_theme[256] = {14,14,8,8,10,10,11,11,   12,12,14,13,12,12,14,11,   11,11,14,10,11,11,14,10,	10,10,14,8,10,10,14,8,
-					8,8,14,6,5,5,14,8,		 12,12,14,13,12,12,14,11,   11,11,14,10,11,11,14,10,	10,10,14,8,10,10,14,8,
-					8,8,14,6,5,5,14,4,		 5,5,14,6,5,5,14,4,			4,4,14,3,4,4,14,5,			6,6,14,8,6,6,14,5,
-					5,5,14,4,5,5,14,6,		 8,8,14,7,8,8,14,9,		    11,11,14,10,12,12,14,10,	8,8,14,6,5,5,14,4,
-					2,0,1,5,2,2,14,14,		 14,14,14,14,14,14,14,14,	14,14,14,14,14,14,14,14,	14,14,14,14,14,14,14,14,
-					14,14,8,8,10,10,11,11,   12,12,14,13,12,12,14,11,   11,11,14,10,11,11,14,10,	10,10,14,8,10,10,14,8,
-					8,8,14,6,5,5,14,8,		 12,12,14,13,12,12,14,11,   11,11,14,10,11,11,14,10,	10,10,14,8,10,10,14,8,
-					8,8,14,6,5,5,5,4,		 5,5,14,6,5,5,5,4,			4,4,14,3,4,4,14,5,			5,5,4,4,2,2,14,14};
-
-	for (int i = 0; i < 256; i++) {
-		tetris_theme[i] = new_tetris_theme[i];
-	}
-
-	if(interrupts_were_on) {
-		sei();
-	}
+	current_note = 0;
+	numTicks = 0;
+	game_tone_is_playing = 0;
+	game_over = 1;
 }
