@@ -145,6 +145,9 @@ void splash_screen(void) {
 }
 
 void new_game(void) {
+	//switch music
+	switch_to_game_over(0);
+	
 	// Initialise the game and display
 	init_game();
 	
@@ -390,7 +393,7 @@ void play_game(void) {
 }
 
 void handle_game_over() {
-	switch_to_game_over();
+	switch_to_game_over(1);
 	empty_button_queue();
 	move_cursor(17,14);
 	// Print a message to the terminal. 
