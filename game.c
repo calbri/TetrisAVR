@@ -336,23 +336,14 @@ static void check_for_completed_rows(int scoring_combo) {
 	if (row_complete == 1) {
 		cleared_row_count++;
 		set_row_count(cleared_row_count);
-		//play_game_tone(1);
+		play_game_tone(1);
 		check_for_completed_rows(scoring_combo);
 	} else {
 		//end of the recursion chain, update the score  (n^2 * 100)
 		add_to_score(scoring_combo*scoring_combo*100);
 		display_score(get_score());
-		//if a TETRIS is made, flash the screen
 		if (scoring_combo == 4) {
-			//play_game_tone(2);
-			MatrixColumn TETRIS_display[BOARD_ROWS];
-			for(uint8_t row=0; row < BOARD_ROWS; row++) {
-				for(uint8_t col=0; col < MATRIX_NUM_ROWS; col++) {
-					TETRIS_display[row][col] = 0x0F;
-				}
-			}
-			flash();
-			ledmatrix_update_all(board_display);
+			play_game_tone(2);
 		}
 	}
 			

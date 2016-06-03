@@ -229,17 +229,15 @@ void play_game(void) {
 				}
 			} else {
 				if (get_clock_ticks() >= last_input_time + 50) {
-					if (get_clock_ticks() >= last_input_time + 500) {
-						if(button==3 || escape_sequence_char=='D') {
-							// Attempt to move left
-							(void)attempt_move(MOVE_LEFT);
-						} else if(button==0 || escape_sequence_char=='C') {
-							// Attempt to move right
-							(void)attempt_move(MOVE_RIGHT);
-						} else if (button==2 || escape_sequence_char == 'A') {
-							// Attempt to rotate
-							(void)attempt_rotation();
-						}
+					if(button==3 || escape_sequence_char=='D') {
+						// Attempt to move left
+						(void)attempt_move(MOVE_LEFT);
+					} else if(button==0 || escape_sequence_char=='C') {
+						// Attempt to move right
+						(void)attempt_move(MOVE_RIGHT);
+					} else if (button==2 || escape_sequence_char == 'A') {
+						// Attempt to rotate
+						(void)attempt_rotation();
 					}
 				}
 			}
@@ -281,7 +279,7 @@ void play_game(void) {
 			last_input_time = get_clock_ticks();
 			last_button = button;
 			last_joystick = joystick;
-					
+			firstRepeat = 0;		
 			if(button == -1) {
 				// No push button was pushed, see if there is any serial input
 				if(serial_input_available()) {
