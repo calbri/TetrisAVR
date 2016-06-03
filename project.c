@@ -259,17 +259,15 @@ void play_game(void) {
 				}
 			} else {
 				if (get_clock_ticks() >= last_input_time + 50) {
-					if (get_clock_ticks() >= last_input_time + 500) {
-						if (joystick==3) {
-							// Attempt to move left
-							(void)attempt_move(MOVE_LEFT);
-						} else if (joystick==0) {
-							// Attempt to move right
-							(void)attempt_move(MOVE_RIGHT);
-						} else if (joystick==2) {
-							// Attempt to rotate
-							(void)attempt_rotation();
-						}
+					if (joystick==3) {
+						// Attempt to move left
+						(void)attempt_move(MOVE_LEFT);
+					} else if (joystick==0) {
+						// Attempt to move right
+						(void)attempt_move(MOVE_RIGHT);
+					} else if (joystick==2) {
+						// Attempt to rotate
+						(void)attempt_rotation();
 					}
 				}
 			}
