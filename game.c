@@ -337,21 +337,13 @@ static void check_for_completed_rows(int scoring_combo) {
 		cleared_row_count++;
 		set_row_count(cleared_row_count);
 		play_game_tone(1);
-		if (get_row_count() < 30) {
-			set_music_speed(250000 - (get_row_count()*5000));
-		} else {
-			set_music_speed(100000);
-		}		
 		check_for_completed_rows(scoring_combo);
 	} else {
 		//end of the recursion chain, update the score  (n^2 * 100)
 		add_to_score(scoring_combo*scoring_combo*100);
 		display_score(get_score());
-		//if a TETRIS is made, flash the screen
 		if (scoring_combo == 4) {
 			play_game_tone(2);
-			flash();
-			ledmatrix_update_all(board_display);
 		}
 	}
 			
