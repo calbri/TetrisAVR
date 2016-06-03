@@ -102,7 +102,6 @@ ISR(PCINT1_vect) {
 }
 
 uint8_t joystick_input(void) {
-	uint8_t return_value = -1;		//assume no joystick input
 	//Set the ADC mux to choose ADC6 if x_or_y is 0, ADC7 is x_or_y is 1
 	if(x_or_y == 0) {
 		ADMUX |= (1<<2)|(1<<1)|(1<<0);

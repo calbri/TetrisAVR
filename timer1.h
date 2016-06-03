@@ -22,4 +22,6 @@ uint32_t get_music_speed(void);
 
 void play_game_tone(uint8_t tone_number);
 
+void switch_to_game_over(void);
+
 #endif

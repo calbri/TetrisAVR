@@ -58,13 +58,13 @@ ________________________________________________________________________________
 
 //OCRA values, the note "frequency" array (see table above)
 //Let 1ms be 1000 in this array
-uint32_t note_frequencies[11] = {2408, 2273, 2025, 1911, 1703, 1517, 1432, 1276, 1204, 1136, 1000000};
+uint32_t note_frequencies[15] = {2408, 2273, 2025, 1911, 1703, 1517, 1432, 1276, 1204, 1136, 1000000,0,0,0,0};
 
 //a variable to keep track of how far into the piece the buzzer is
 uint32_t numTicks;
 
 //a variable to track whether a piece, or a game buzz tone, is playing
-volatile uint8_t game_tone_is_playing;
+volatile uint8_t game_tone_is_playing, silent_note;
 
 //current note in the piece (0 to 255)
 uint8_t current_note;
@@ -106,6 +106,7 @@ void init_timer1(void) {
 	numTicks = 0;
 	game_tone_is_playing = 0;
 	speed_threshold = 200000;	//125000 is medium pace, 50-60000 is very fast
+	silent_note = 10;
 
 	/* Clear the timer */
 	TCNT1 = 0;
@@ -149,7 +150,7 @@ ISR(TIMER1_COMPA_vect) {
 			OCR1A = 0.1*(note_frequencies[tetris_theme[current_note]]-1);
 		}
 		//if the note is a 10 make it silent (see tetris_theme definition)
-		if (tetris_theme[current_note]==10) {
+		if (tetris_theme[current_note]==silent_note) {
 			mute = 1;
 		}
 	} else {
@@ -183,10 +184,39 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 void play_game_tone(uint8_t tone_number) {
-	//uint8_t interrupts_were_on = bit_is_set(SREG, SREG_I);
-	//cli();
+	uint8_t interrupts_were_on = bit_is_set(SREG, SREG_I);
+	cli();
 	game_tone_is_playing = tone_number;
-	//if(interrupts_were_on) {
-	//	sei();
-	//}
+	if(interrupts_were_on) {
+		sei();
+	}
+}
+
+void switch_to_game_over(void) {
+	uint8_t interrupts_were_on = bit_is_set(SREG, SREG_I);
+	cli();	
+	speed_threshold = 75000;
+	silent_note = 14;
+	
+	uint32_t new_note_frequencies[15] = {3214,2863,2408,2272,2145,1911,1804,1703,1607,1517,1432,1276,1204,1073,1000000};
+	for (int i = 0; i < 15; i++) {
+		note_frequencies[i] = new_note_frequencies[i];
+	}
+
+	uint8_t new_tetris_theme[256] = {14,14,8,8,10,10,11,11,   12,12,14,13,12,12,14,11,   11,11,14,10,11,11,14,10,	10,10,14,8,10,10,14,8,
+					8,8,14,6,5,5,14,8,		 12,12,14,13,12,12,14,11,   11,11,14,10,11,11,14,10,	10,10,14,8,10,10,14,8,
+					8,8,14,6,5,5,14,4,		 5,5,14,6,5,5,14,4,			4,4,14,3,4,4,14,5,			6,6,14,8,6,6,14,5,
+					5,5,14,4,5,5,14,6,		 8,8,14,7,8,8,14,9,		    11,11,14,10,12,12,14,10,	8,8,14,6,5,5,14,4,
+					2,0,1,5,2,2,14,14,		 14,14,14,14,14,14,14,14,	14,14,14,14,14,14,14,14,	14,14,14,14,14,14,14,14,
+					14,14,8,8,10,10,11,11,   12,12,14,13,12,12,14,11,   11,11,14,10,11,11,14,10,	10,10,14,8,10,10,14,8,
+					8,8,14,6,5,5,14,8,		 12,12,14,13,12,12,14,11,   11,11,14,10,11,11,14,10,	10,10,14,8,10,10,14,8,
+					8,8,14,6,5,5,5,4,		 5,5,14,6,5,5,5,4,			4,4,14,3,4,4,14,5,			5,5,4,4,2,2,14,14};
+
+	for (int i = 0; i < 256; i++) {
+		tetris_theme[i] = new_tetris_theme[i];
+	}
+
+	if(interrupts_were_on) {
+		sei();
+	}
 }

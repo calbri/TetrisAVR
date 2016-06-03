@@ -170,7 +170,7 @@ void new_game(void) {
 
 void play_game(void) {
 	uint32_t last_drop_time, last_term_time, last_input_time;
-	int8_t button, game_paused, last_button, joystick, last_joystick, joystick_x_or_y,last_joystick_x_or_y;
+	int8_t button, game_paused, last_button, joystick, last_joystick;
 	char serial_input, escape_sequence_char;
 	uint8_t characters_into_escape_sequence = 0;
 	
@@ -394,6 +394,7 @@ void play_game(void) {
 }
 
 void handle_game_over() {
+	switch_to_game_over();
 	empty_button_queue();
 	move_cursor(17,14);
 	// Print a message to the terminal. 

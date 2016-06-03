@@ -351,8 +351,6 @@ static void check_for_completed_rows(int scoring_combo) {
 					TETRIS_display[row][col] = 0x0F;
 				}
 			}
-			ledmatrix_update_all(TETRIS_display);
-			flash();
 			flash();
 			ledmatrix_update_all(board_display);
 		}
