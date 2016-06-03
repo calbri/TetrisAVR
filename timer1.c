@@ -220,7 +220,7 @@ void play_game_tone(uint8_t tone_number) {
 }
 
 void switch_to_game_over(uint8_t game_mode) {
-	current_note = 0;
+	current_note = -1;
 	numTicks = 0;
 	game_tone_is_playing = 0;
 	game_over = game_mode;
